@@ -81,7 +81,6 @@ def generateM(pi_0, pi_i):
     return int(m)
 
 def generateQuery(i, S):
-
     m = generateM(S[0], S[i])
     # We should sample from all possible G's (we don't yet)
     # Gexp then represents (g \in G)^exp
@@ -104,8 +103,11 @@ def generateResponse(m, Gexp, g, B, S):
 
 def processResponse(Gexp, pi_i, g_e, q, h, m):
     h_e = Gexp(g_e, q)
+    # "C_i is the discrete logarithm of h_e with respect to base h"
+    # => h^C_i = h_e. ie) Gexp(h, C_i) = h_e
+
     #TODO: Should use pohlig-hellman wrapper around bs-gs 
-    #  since the modulus is composite (will be faster) 
+    #  since the modulus m is composite (will be faster) 
     C_i = babyStepGiantStep(Gexp, h, h_e, m)
     return C_i
 
@@ -122,18 +124,3 @@ def babyStepGiantStep(Gexp, alpha, beta, n):
         if(gamma in table): return i*m + table[gamma]
         gamma = gamma * Gexp(alpha, -1 * m)
     return ret
-
-
-
-#C_i is the discrete logarithm of h_e with respect to base h
-# that is, h^C_i = h_e. ie) Gexp(h, C_i) = h_e
-# And thus for the specific case:
-#          (h * x) % m = h_e
-# So, the default pohlig hellman won't help us too much. 
-
-    #def PohligHellmanModP(beta, alpha, p, verbose=True):
-    #''' Solves discrete log problem alpha^x = beta mod p, and returns x,
-
-    #Above: C_i is the discrete logarithm log_h(h_e) within the subgroup
-    # H \subset G of order pi_i = p_i^(c_i) 
-    return C_i

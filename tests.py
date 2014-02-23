@@ -13,8 +13,8 @@ class TestPIR(unittest.TestCase):
         for i in range(0, len(self.C)):
             l = ceil(log(self.C[i], 2))
             if l > max: max = l
-        self.l = 2 * max                   # Max block size
-        self.n = int(len(self.C) * self.l) # Database size
+        self.l = 2 * max                   # Max block size (bits)
+        self.n = int(len(self.C) * self.l) # Database size  (bits)
         self.params = setup(self.n, self.l)
 
     # Prime power size security test    
