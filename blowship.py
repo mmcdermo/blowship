@@ -108,8 +108,14 @@ def processResponse(Gexp, pi_i, g_e, q, h, m):
 
     #TODO: Should use pohlig-hellman wrapper around bs-gs 
     #  since the modulus m is composite (will be faster) 
-    C_i = babyStepGiantStep(Gexp, h, h_e, m)
+    C_i = babyStepGiantStep(Gexp, h, h_e, pi_i)
+    #C_i = ph.PohligHellmanModP(Gexp, h_e, h, m)
     return C_i
+#    return 105
+
+# Solve for alpha^x = beta in a cyclic group of order (p_i ** c_i)
+def primePowerPohligHellman(Gexp, alpha, beta, p_i, c_i):
+    
 
 # Solve for alpha^x = beta in a cyclic group of order n
 def babyStepGiantStep(Gexp, alpha, beta, n):
