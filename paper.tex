@@ -2,6 +2,7 @@
 \usepackage{authblk}
 \usepackage{graphicx}
 \usepackage{wrapfig}
+\usepackage{cite}
 \usepackage[margin=1.0in]{geometry}
 
 \title{Blowship}
@@ -15,28 +16,27 @@
 \twocolumn
 \section{Introduction}
 Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+\section{Previous Work}
+There has been a plethora of original work and refinement in the area of anonymous internet communication. Broadly categorized, these include:
+\begin{enumerate}
+  \item Mixes \cite{chaum-mix} 
+  \item Onion routing \cite{onion-discex00}
+  \item Freedom (wtf) [z]
+\end{enumerate}
 \section{Privacy Goals}
   The goal of this system is to provide an in-browser method for communicating securely between parties without massive latency or communication overhead. We attempt to satisfy these requirements assuming the intermediate server may be compromised. By communicating securely we mean specifically (using terminology from \textbf{[6]}):
   \\\\\textbf{Communication Privacy}. Any party Eve cannot read the contents of intercepted messages sent between any two parties Alice and Bob. 
-  \\\textbf{Participant Privacy}. Any party Eve, cannot determine with probability $p > \epsilon$ that the two are communicating, given any $\epsilon$ chosen by Alice and Bob (with a clear lower bound of $\epsilon > 1/N$ where $N$ is the number of participants). The ability of multiple participants to collude and determine this with $p > \epsilon$ must be well defined.
+  \\\textbf{Participant Privacy}. This is also called \textbf{Unobservability} and \textbf{Untraceability}. Any party Eve, cannot determine with probability $p > \epsilon$ that the two are communicating, given any $\epsilon$ chosen by Alice and Bob (with a clear lower bound of $\epsilon > 1/N$ where $N$ is the number of participants). The ability of multiple participants to collude and determine this with $p > \epsilon$ must be well defined.
   \\\textbf{Destination Privacy}. Any party Eve in the network cannot determine the final destination of any party Alice's messages. This is a less stringent requirement than Participant Privacy.
 \section{PSP}
 In this section we introduce
 $P2(S2P2)^nP$, or PSP for short. PSP is an alternative to P2P protocols in which peers communicate with eachother through an alternating chain of peer-server and server-peer communications.
-\\\\
+
 \begin{figure}[ht]
   \includegraphics[width=290px]{PSP.png}
   \caption{A simple PSP communication chain}
 \end{figure}
-\\\\
-\subsection{Adversaries}
-In this context, we have several distinct types of adversaries we must consider:
-\begin{enumerate}
-  \item\textbf{Penguin.} Penguin is any Peer who can intercept and alter messages being passed through it. 
-  \item\textbf{Surge.} Surge is a compromised central Server. He can alter and intercept any messages passing through, and can provide bogus information to any peer.
-  \item\textbf{Proletariat.} The Proletariat is a group of colluding Penguins.
-  \item\textbf{The Palace.} The Palace is a collusion of the Proletariat and Surge.
-\end{enumerate}
+
 \subsection{Basic Protocol}
 Assume that Alice has obtained Bob's public key and unique ID while maintaining her anonymity. Assume also that Alice can obtain the public keys and IDs for $n \le N$ peers at random while hiding her choice from Surge. 
 
@@ -50,9 +50,18 @@ Alice sends: $F_{S1}[F_{S2}[...F_{nB}[ M ]]]$ to Surge.
 Each successive party receives a message and an ID to forward that message to, and only that party can read its message. Importantly, any Penguin or Proletariat without collusion from Surge doesn't gain any information about the source or destination of the message it's passing along. 
 \\\\
 Note that Surge can't track a message by its contents, since it gets decrypted and changed by each successive peer. 
-
+\\\\
+In this system, peers operate exactly as MIXes in the literature \cite{chaum-mix} . That is, they prevent traffic correlation by removing a layer of encryption, prevent relay attacks [[[TODO]]], as well (as we will discuss) by reordering and batching messages. 
+\subsection{Adversaries}
+In this context, we have several distinct types of adversaries we must consider:
+\begin{enumerate}
+  \item\textbf{Penguin.} Penguin is any Peer who can intercept and alter messages being passed through it. 
+  \item\textbf{Surge.} Surge is a compromised central Server. He can alter and intercept any messages passing through, and can provide bogus information to any peer.
+  \item\textbf{Proletariat.} The Proletariat is a group of colluding Penguins.
+  \item\textbf{The Palace.} The Palace is a collusion of the Proletariat and Surge.
+\end{enumerate}
 \subsection{Security Flaws}
-Here we'll perform a simplified analysis of the security flaws of this system.
+Here we'll perform a simplified analysis of the security flaws of the basic, naive system described so far. 
 Let $P_{AB}$ be the probability that Alice is talking to Bob. 
 \begin{enumerate}
 \item\textbf{Linear Chain.} If we assume that Alice's message is the only message sent by any of $P_1 ... P_n$, $Surge$ can determine that $P_{AB} > (n+1)^{-1} \gg 1/N$. This is because Surge knows that one of $A \cup \{P_1 ... P_n\}$ talked to Bob.
@@ -65,7 +74,7 @@ This is fairly poor security. If Alice chooses $n = 5$, then if her chosen peers
 \subsection{Solutions}
 To begin solving these problems, change the protocol so that any non-Penguin peer will always send two or more messages simultaneously.
 
-If we assume that there is not a Palace, then Alice needs only choose $n = O(log(N))$, and then Surge can only tell that $P_{AB} = 2^{-O(log(N))} \approx 1/N $. If every node sends 2 messages at once, and her message passes through $O(log(N))$ nodes, then there are $O(2^n)$ possible routes her message could have taken and hopefully $O(2^n)$ possible destinations. The likelihood is that in $log(N)$ steps from Alice, there will be less than $2^n$ unique recipients of messages, but we can adjust for this by increasing the number of nodes $n$ we choose. If every node has an average unique branching factor of $z$ rather than $2$, we can use $n = y log(N)$ and then: $z^{-ylog(N)} = 1/N$ and so $y = 1/log(z) \Rightarrow n = log(N)/log(z)$
+If we assume that there is not a Palace, then Alice needs only choose $n = O(log(N))$, and then Surge can only tell that $P_{AB} = 2^{-O(log(N))} \approx 1/N $. If every node sends 2 messages at once, and her message passes through $O(log(N))$ nodes, then there are $O(2^n)$ possible routes her message could have taken and hopefully $O(2^n)$ possible destinations. The likelihood is that in $log(N)$ steps from Alice, there will be less than $2^n$ unique recipients of messages, but we can adjust for this by increasing the number of nodes $n$ we choose. If every node has an average unique branching factor of $z$ rather than $2$, we can just set $n = log_z(N)$ and then $z^{log_z(N)} = 1/N$.
 
 \\\\In this way Surge gains no information about $P_{AB}$. If Surge knows Alice will choose $n = log(N)$, then he can rule out any peer in the chain with distance $< n$ from Alice, and then $P_{AB} = 2^{-(log(N)-1)} = 2/N$, which is still reasonable. 
 \\\\
@@ -94,4 +103,6 @@ While less than ideal this is not bad. The chance that Surge, having $50\%$ of p
 Unfortunately, if peers discover eachother through Surge, he can ensure that $\phi = 1$ by only sharing information about peers who are part of the Palace. 
 \\\\
 This is still a problem.
+\bibliography{paper.bib}
+\bibliographystyle{plain}
 \end{document}
