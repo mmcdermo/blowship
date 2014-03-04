@@ -47,14 +47,16 @@ Let $M = E_{KRA}[  time || nonce || message ]$
 \\
 Alice sends: $F_{S1}[F_{S2}[...F_{nB}[ M ]]]$ to Surge. 
 
-Each successive party receives a message and an ID to forward that message to, and only that party can read its message. Importantly, any non-colluding Penguin doesn't gain any information about the source or destination of the message it's passing along. 
+Each successive party receives a message and an ID to forward that message to, and only that party can read its message. Importantly, any Penguin or Proletariat without collusion from Surge doesn't gain any information about the source or destination of the message it's passing along. 
+\\\\
+Note that Surge can't track a message by its contents, since it gets decrypted and changed by each successive peer. 
 
 \subsection{Security Flaws}
 Here we'll perform a simplified analysis of the security flaws of this system.
 Let $P_{AB}$ be the probability that Alice is talking to Bob. 
 \begin{enumerate}
-\item\textbf{Linear Chain.} If we assume that Alice's message is the only message sent by any of $P_1 ... P_n$, $Surge$ can determine that $P_{AB} > 1/(n+1) \gg 1/N$. This is because Surge knows that one of $A \cup \{P_1 ... P_n\}$ talked to Bob.
-\item\textbf{Collusion.} If there is a Proletariat of size $s$ colluding with Surge to form the Palace, then the Palace can determine on average (depending on which peers were picked), that $P_{AB} >1/(n/(N-s)+1)$ - that is, Alice has a chance $1 - (N-s)/N$ of each peer being compromised and not contributing to her privacy.
+\item\textbf{Linear Chain.} If we assume that Alice's message is the only message sent by any of $P_1 ... P_n$, $Surge$ can determine that $P_{AB} > (n+1)^{-1} \gg 1/N$. This is because Surge knows that one of $A \cup \{P_1 ... P_n\}$ talked to Bob.
+\item\textbf{Collusion.} If there is a Proletariat of size $s$ colluding with Surge to form the Palace, then the Palace can determine on average (depending on which peers Alice picked), that $P_{AB} > (n/(N-s)+1)^{-1}$ - that is, Alice has a chance $1 - (N-s)/N$ of each peer being compromised and not contributing to her privacy.
 \item\textbf{Timing.} Even if $P_1 ... P_n$ are sending other messages, if Surge knows the probability distribution of the peer delay between receiving a message and forwarding it, he can discover the increased probability that Alice and Bob are talking. 
 \item\textbf{Multiple Communications.} If Alice sends another message to Bob, or Bob back to Alice, the chance that they are communicating increases even more. 
 \end{enumerate}
@@ -63,13 +65,15 @@ This is fairly poor security. If Alice chooses $n = 5$, then if her chosen peers
 \subsection{Solutions}
 To begin solving these problems, change the protocol so that any non-Penguin peer will always send two or more messages simultaneously.
 
-If we assume that there is not a Palace, then Alice needs only choose $n = log(N)$, and then Surge can only tell that $P_{AB} > 1 / 2^{log(N)} = 1/N $. In this way Surge gains no information about $P_{AB}$. If Surge knows Alice will choose $n = log(N)$, then he can rule out any peer in the chain with distance $< n$ from Alice, and then $P_{AB} > 1 / 2^{log(N) - 1} = 2/N$, which is still reasonable. 
+If we assume that there is not a Palace, then Alice needs only choose $n = O(log(N))$, and then Surge can only tell that $P_{AB} = 2^{-O(log(N))} \approx 1/N $. If every node sends 2 messages at once, and her message passes through $O(log(N))$ nodes, then there are $O(2^n)$ possible routes her message could have taken and hopefully $O(2^n)$ possible destinations. The likelihood is that in $log(N)$ steps from Alice, there will be less than $2^n$ unique recipients of messages, but we can adjust for this by increasing the number of nodes $n$ we choose. If every node has an average unique branching factor of $z$ rather than $2$, we can use $n = y log(N)$ and then: $z^{-ylog(N)} = 1/N$ and so $y = 1/log(z) \Rightarrow n = log(N)/log(z)$
+
+\\\\In this way Surge gains no information about $P_{AB}$. If Surge knows Alice will choose $n = log(N)$, then he can rule out any peer in the chain with distance $< n$ from Alice, and then $P_{AB} = 2^{-(log(N)-1)} = 2/N$, which is still reasonable. 
 \\\\
-\textbf{The Palace.} Assuming there is a Palace $S$ with $s = |S| > n$ peers, and Alice chooses her $|R| = n$ peers randomly, there is unfortunately some chance that $R \subset S$ and so $P_{AB} = 1$. If $s = \phi*N$ peers are part of the palace, on average $E[P_{AB}] = 1 / 2^{\phi log(N)}$. The chance Surge can tell with probability $> \gamma$ that Alice and Bob are talking to eachother, $p(P_{AB} > \gamma)$ requires Alice choosing $x$ Palace members as peers. 
+\textbf{The Palace.} Assuming there is a Palace $S$ with $s = |S| > n$ peers, and Alice chooses her $|R| = n$ peers randomly, there is unfortunately some chance that $R \subset S$ and so $P_{AB} = 1$. If $s = \phi*N$ peers are part of the palace, on average $E[P_{AB}] = 2^{-\phi log(N)}$. The chance Surge can tell with probability $> \gamma$ that Alice and Bob are talking to eachother, $p(P_{AB} > \gamma)$ requires Alice choosing $x$ Palace members as peers. 
 
 
 \\This happens with probability $\sum\limits_{i=x}^n\phi^i$ where 
-\\ $P_{AB} = 1 / 2^{n - x} = 1 / 2^{log(N) - x} = \gamma$
+\\ $P_{AB} = 2^{-(n - x)} = 2^{-(log(N) - x)} = \gamma$
 \\ $x = 2^{loglog(N)/\gamma}$
 
 \begin{figure}[ht]
