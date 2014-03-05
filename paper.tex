@@ -72,7 +72,7 @@ Let $P_{AB}$ be the probability that Alice is talking to Bob.
 This is fairly poor security. If Alice chooses $n = 5$, then if her chosen peers send no other messages until hers is delivered, Surge knows $P_{AB} > 1/6$ chance that Alice is talking to Bob. If $60\%$ of peers are part of the Palace, then Surge possibly knows $P_{AB} = 1$ if $n \subset s$, but the expectation is $E[P_{AB}] = 1/3$.
 
 \subsection{Solutions}
-To begin solving these problems, change the protocol so that any non-Penguin peer will always send two or more messages simultaneously.
+To begin solving these problems, change the protocol so that any non-Penguin peer will always wait until it can send two or more messages simultaneously. This is equivilant to turning each peer into a 2-Threshold mix. \cite{TODO}
 
 If we assume that there is not a Palace, then Alice needs only choose $n = O(log(N))$, and then Surge can only tell that $P_{AB} = 2^{-O(log(N))} \approx 1/N $. If every node sends 2 messages at once, and her message passes through $O(log(N))$ nodes, then there are $O(2^n)$ possible routes her message could have taken and hopefully $O(2^n)$ possible destinations. The likelihood is that in $log(N)$ steps from Alice, there will be less than $2^n$ unique recipients of messages, but we can adjust for this by increasing the number of nodes $n$ we choose. If every node has an average unique branching factor of $z$ rather than $2$, we can just set $n = log_z(N)$ and then $z^{log_z(N)} = 1/N$.
 \\In this way Surge gains no information about $P_{AB}$. If Surge knows Alice will choose $n = log(N)$, then he can rule out any peer in the chain with distance $< n$ from Alice, and then $P_{AB} = 2^{-(log(N)-1)} = 2/N$, which is still reasonable. 
@@ -100,6 +100,13 @@ While less than ideal this is not bad. The chance that Surge, having $50\%$ of p
 Unfortunately, if peers discover eachother through Surge, he can ensure that $\phi = 1$ by only sharing information about peers who are part of the Palace. 
 \\
 This is still a problem.
+\subsection{Peers as Mixes}
+As previously discussed, peers act as mixes in this system - inheriting both their benefits and vulnerabilities. Many types of mixes have been developed, and Serjantov \cite{trickle02} has compiled common attacks and solutions. 
+\paragraph{}A mix holds on to incoming messages until its \textbf{flush function} is satisfied, then it forwards some subset of its collected messages. Common attacks are variants of the $n - 1$ or $flooding$ attack, in which an attacker fills the mix with its own fake messages and then sends the 1 message he wishes to track. 
+\paragraph{} All known mix types are vulnerable to such exact attacks \cite{trickle02} -  attacks that allow an attacker to know whether his attack was successful or not and try again if not. Since in our threat model Surge has complete access to the message history of each peer as well as the ability to delay and insert as many messages as he desires, trying to prevent these attacks by implementing a better flush function is even more futile. 
+\paragraph{} Fortunately, due to the nature of this system we can provide almost complete protection with \textbf{cover traffic} \cite{trickle02}, or having each peer send dummy messages along with the messages it's forwarding. If done correctly in this model, a peer should at minimum send one dummy message along with every real message, maintaining a branching factor of two at every hop. Typically providing complete protection with cover traffic is difficult - it requires the mix to choose dummy message recipients uniformally from all users. In our system, however, randomly and anonymously choosing other online peers is designed to be efficient.
+\paragraph{} It would also be possible to use inter-mix detours\cite{TODO}, or having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
+
 \bibliography{paper.bib}
 \bibliographystyle{plain}
 \end{document}
