@@ -124,6 +124,16 @@ While less than ideal this is not bad. The chance that Surge, having $50\%$ of p
 
 TODO: Apply PIR to obtain security guarantees even when $R \subset S$
 
+\subsection{Peer Discovery & MITM brainstorming}
+
+Lying about who's online - If you want to send a message to a real node ``B'' but B is not listed as online, you won't send a message. However, if he lists ``B'' as online, ``B'' can be used to route messages validly by everyone. 
+
+Chain verification - Keep a web of trust with the length of the path to a person inversely proportional to how trusted they are. Share web of trust with those we communicate with - only share nodes with a certain level of trust, and then trust nodes discovered this way with diminished trust. 
+
+If initial trust is only spread through person to person contact, then assigning negative trust is valuable because it reduces the value of colluding human nodes. 
+
+* Have nodes sign messages as they pass through, so that the path can be tested/verified. 
+
 \subsection{Peer Discovery}
 Unfortunately, if peers discover eachother through Surge, he can ensure that any peer only knows about compromised peers (Effectively making $\phi = 1$).
 
@@ -131,9 +141,13 @@ This is a common problem in Onion routing schemes like Tor, as well as Mix netwo
 
 MixMinion \cite{minion-design} solves these problems by having a small group of directory servers that only update nightly, having servers sign each other's directories, and ensuring that users download entire directories. These solutions are not feasible in our case since the set of online users is constantly in flux, and is likely to be too large to be sent to every user. Tor \cite{tor-design} likewise has a small number of trusted directory servers that share infrequently updated, signed directories.
 
+
+
 \subsection{Man in the Middle.} If both Alice and Bob are online, then they could use Diffie Hellman to ensure that Surge isn't acting as a Man in the middle. However, we'd like to allow offline delivery of messages.
 
 This requires some form of web of trust, or some means of verifying public keys without trusting Surge. 
+
+Users should maintain a list of known keys to make stuff good. 
 
 \subsection{Peers as Mixes}
 As previously discussed, peers act as mixes in this system - inheriting both their benefits and vulnerabilities. Many types of mixes have been developed, and Serjantov \cite{trickle02} has compiled common attacks and solutions. 
