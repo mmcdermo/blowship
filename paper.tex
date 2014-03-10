@@ -23,10 +23,10 @@ In this paper we present a centralized anonymity system that uses a single, untr
 \section{Introduction}
  
 \section{Previous Work}
-\paragraph{Mixes.} Mixes are servers through which encrypted messages are sent, hiding the correlation between incoming and outgoing messages using encryption, pooling incoming messages, and a variety of other strategies. Mixes have seen wide use since Chaum first introduced them in his 1981 paper \cite{chaum-mix}. They have been used in systems such as MixMinion\cite{minion-design} to anonymously send and receive email. [TODO: more explanation]
-\paragraph{Onion Routing.} \cite{onion-discex00}
-\paragraph{Nym systems.} Pseudonymous message delivery systems enable users to send messages from a \textit{nym} (pseudonym) that cannot be traced back to their true identity. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient - which is what we are attempting to develop in this paper. 
-\paragraph{Private Information Retrieval.} PIR has been used to facilitate anonymous communication in a variety of ways. The Pynchon Gate \cite{wpes2005} is a nym system that uses information-theoretic PIR as a layer of indirection between a user and their nym - allowing users to retrieve mail sent to their nym with information-theoretic privacy guarantees. 
+\paragraph{Mixes.} Mixes are servers through which encrypted messages are sent, hiding the correlation between incoming and outgoing messages using encryption, pooling incoming messages, and a variety of other strategies. Mixes have seen wide use since Chaum first introduced them in his 1981 paper \cite{chaum-mix}. They have been used in systems such as MixMinion\cite{minion-design} to anonymously send and receive email. Onion routing systems such as Tor \cite{tor-design} use series of mixes as proxies for web data. 
+
+\paragraph{Nym systems.} Pseudonymous message delivery systems enable users to send and receive messages with a \textit{nym} (pseudonym) that cannot be traced back to their true identity. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient - which is what we are attempting to develop in this paper. 
+\paragraph{Private Information Retrieval.} PIR has been used to facilitate anonymous communication in a variety of ways. The Pynchon Gate \cite{wpes2005} is a nym system that uses information-theoretic PIR as a layer of indirection between a user and their nym - allowing users to retrieve mail sent to their nym with information-theoretic privacy guarantees. Tor-PIR \cite{TODO} uses PIR to distribute information about servers without forcing users to download the entire directory. 
 
 \section{Measuring Anonymity}
   \textit{Anonymity sets}, introduced by Chaum in his Dining Cryptographers paper \cite{chaum-dc}, are widely used to analyze the anonymity provided by various p2p privacy schemes. Given a message and whatever information an attacker has obtained, the anonymity set for that message is the set of users who could have sent it. An anonymity set of size 1 means that the attacker knows exactly who sent the message.
@@ -144,7 +144,29 @@ All known mix types are vulnerable to such exact attacks \cite{trickle02} -  att
 Fortunately, due to the nature of this system we can provide almost complete protection with \textbf{cover traffic} \cite{trickle02}, or having each peer send dummy messages along with the messages it's forwarding. If done correctly in this model, a peer should at minimum send one dummy message along with every real message, maintaining a branching factor of two at every hop. Typically providing complete protection with cover traffic is difficult - it requires the mix to choose dummy message recipients uniformally from all users. In our system, however, randomly and anonymously choosing other online peers is designed to be efficient.
 
 It would also be possible to use inter-mix detours\cite{TODO}, or having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
+
 \section{Applying PIR}
+An obvious way to utilize PIR for anonymous communication is as a ``Dead Drop''. If we have a PIR server Charlie, Alice could write her messages to block $i$ in Charlie's PIR database, then bob could request block $i$ anonymously. This could enable us to increase the size of Alice's anonymity set (retaining a uniform distribution of probabilities, as well) while reducing our circuit length significantly. 
+
+There are several problems with this configuration, however.
+
+First, Alice must communicate Charlie's ID and $i$ to bob anonymously. This could happen via the pseudo-p2p protocol as above. 
+
+Second, Alice and Bob both start talking to Charlie around the same time. If Charlie suspects Alice and Bob are talking to eachother, he can easily create a fake PIR database for all of Alice's inserts and all of Bob's retrievals, and if they continue to communicate normally he has found a connection. 
+
+\subsection{Sliding-Window PIR}
+To Prevent correlation between the Alice-Charlie and Bob-Charlie communication start times 
+
+
+\section{Future Work}
+\begin{enumerate}
+  \item \textbf{Pseudonymity.} Allow for parties to communicate securely without knowing eachother's identities.
+  \item \textbf{Faster circuits.} Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well.
+  \item \textbf{DoS.} We'd like to prevent DoS attacks by requiring some proof of work etc for messages being sent. 
+\end{enumerate}
+
+\newpage
+
 \bibliography{paper.bib}
 \bibliographystyle{plain}
 \end{document}
