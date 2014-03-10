@@ -17,7 +17,7 @@
 \twocolumn
 
 \section*{Abstract} 
-  Many systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
+  Mzany systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
 
 In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized p2p protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication.
 \section{Introduction}
@@ -53,7 +53,7 @@ For example, if we give one user a probability $1$ of sending the message, all o
 \section{Central Server Communication}
  The majority of research into anonymous communication uses decentralized p2p networks. In some cases, however, it is necessary (and possibly beneficial) to communicate through a central server. Many of the developed p2p techniques can be adapted by using a pseudo-p2p protocol, by having peers communicate with each other indirectly through the central server. 
 
- In p2p protocols, delivering a message via a chain of peers or servers is common: Mix-based systems use cascades and mix networks, onion-based systems create circuits, etc. In this system we'll use the onion routing terminology and call the chain of peers a message passes through a $circuit$.
+ In p2p protocols, delivering a message via a chain of peers or servers is a standard method to achieve anonymity. In this system we'll use terminology from Tor and call the chain of peers a message passes through a $circuit$. A pseudo-p2p circuit then consists of an alternating chain of peer-server and server-peer communications.
 
 \begin{figure}[ht]
   \includegraphics[width=230px]{PSP.png}
@@ -141,9 +141,9 @@ A mix holds on to incoming messages until its \textbf{flush function} is satisfi
 
 All known mix types are vulnerable to such exact attacks \cite{trickle02} -  attacks that allow an attacker to know whether his attack was successful or not and try again if not. Since in our threat model Surge has complete access to the message history of each peer as well as the ability to delay and insert as many messages as he desires, trying to prevent these attacks by implementing a better flush function is even more futile. 
 
-Fortunately, due to the nature of this system we can provide almost complete protection with \textbf{cover traffic} \cite{trickle02}, or having each peer send dummy messages along with the messages it's forwarding. If done correctly in this model, a peer should at minimum send one dummy message along with every real message, maintaining a branching factor of two at every hop. Typically providing complete protection with cover traffic is difficult - it requires the mix to choose dummy message recipients uniformally from all users. In our system, however, randomly and anonymously choosing other online peers is designed to be efficient.
+Fortunately, due to the nature of this system we can provide almost complete protection with \textbf{cover traffic} \cite{trickle02}, or having each peer send dummy messages along with the messages it's forwarding. A peer will at minimum send one dummy message along with every real message, maintaining a branching factor greater than two at every hop. Typically providing complete protection with cover traffic is difficult - it requires the mix to choose dummy message recipients uniformally from all users. In our system, however, randomly and anonymously choosing other online peers is designed to be efficient.
 
-It would also be possible to use inter-mix detours\cite{TODO}, or having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
+It would also be possible to use inter-mix detours\cite{TODO}, having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
 
 \section{Applying PIR}
 An obvious way to utilize PIR for anonymous communication is as a ``Dead Drop''. If we have a PIR server Charlie, Alice could write her messages to block $i$ in Charlie's PIR database, then bob could request block $i$ anonymously. This could enable us to increase the size of Alice's anonymity set (retaining a uniform distribution of probabilities, as well) while reducing our circuit length significantly. 
@@ -159,11 +159,11 @@ To Prevent correlation between the Alice-Charlie and Bob-Charlie communication s
 
 
 \section{Future Work}
-\begin{enumerate}
-  \item \textbf{Pseudonymity.} Allow for parties to communicate securely without knowing eachother's identities.
-  \item \textbf{Faster circuits.} Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well.
-  \item \textbf{DoS.} We'd like to prevent DoS attacks by requiring some proof of work etc for messages being sent. 
-\end{enumerate}
+\begin{description}
+  \item[Pseudonymity.] Allow for parties to communicate securely without knowing eachother's identities.
+  \item[Faster circuits.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well.
+  \item[DoS.] We'd like to prevent DoS attacks by requiring some proof of work etc for messages being sent.
+\end{description}
 
 \newpage
 
