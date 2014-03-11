@@ -183,9 +183,11 @@ Second, Alice and Bob both start talking to Charlie around the same time. If Cha
 
 \section{Future Work}
 \begin{description}
-  \item[Pseudonymity.] Allow for parties to communicate securely without knowing eachother's identities.
-  \item[Faster circuits.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well.
-  \item[DoS.] We'd like to prevent DoS attacks by requiring some proof of work etc for messages being sent.
+  \item[Pseudonymity.] Allow for parties to communicate securely without knowing eachother's identities. Currently our system relys heavily (at least when a person first enters the network) on the fact that the person initiating the communication knows the person's key with whom he wants to communciate.
+
+  \item[Faster circuits.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well. Currently we are doing a lot of public/private key encryption which is slow.
+
+  \item[DoS.] We would like to address the issue of DoS attacks against networks by requiring messages to be accompanied by a proof of work. This would allow us to require that the messages being sent are by computers that are also helping to suport the network.
 \end{description}
 
 \newpage
