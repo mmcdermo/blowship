@@ -1,4 +1,5 @@
-\documentclass{paper}
+\documentclass[twocolumn]{paper}
+\usepackage{comment}
 \usepackage{authblk}
 \usepackage{graphicx}
 \usepackage{wrapfig}
@@ -9,17 +10,16 @@
 \title{Blowship - Anonymous Communication via a Central Server}
 \author[*]{John Carlyle}
 \author[**]{Morgan McDermott}
-\affil[*]{University of fighitng bears}
-\affil[**]{University of sillypants}
+\affil[*]{University of angry bees}
+\affil[**]{University of flightless dragons}
 
 \begin{document}
 \maketitle
-\twocolumn
 
 \section*{Abstract} 
-  Mzany systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
+  Many systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
 
-In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized p2p protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication.
+In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized p2p protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication. The primary reason behind a centeral server is to have a browser based service which needs a server to initialze the peer to peer network.
 \section{Introduction}
  
 \section{Previous Work}
@@ -74,7 +74,7 @@ Each successive party receives a message and an ID to forward that message to, a
 
 Note that Surge can't track a message by its contents, since it gets decrypted and changed by each successive peer. 
 
-In this system, peers operate exactly as MIXes in the literature \cite{chaum-mix} . That is, they prevent traffic correlation by removing a layer of encryption, prevent relay attacks [[[TODO]]], as well (as we will discuss) by reordering and batching messages. 
+In this system, peers operate exactly as MIXes in the literature \cite{chaum-mix} . That is, they prevent traffic correlation by removing a layer of encryption, prevent relay attacks [[[soething]]], as well (as we will discuss) by reordering and batching messages. 
 \subsection{Adversaries}
 In this context, we have several distinct types of adversaries we must consider:
 \begin{enumerate}
@@ -122,9 +122,11 @@ This happens with probability $\sum\limits_{i=x}^n\phi^i$ where
 
 While less than ideal this is not bad. The chance that Surge, having $50\%$ of peers colluding with him, can tell that Alice is talking to Bob with probability $> 0.5$ is only $12\%$. 
 
+\begin{comment}
 TODO: Apply PIR to obtain security guarantees even when $R \subset S$
+\end{comment}
 
-\subsection{Peer Discovery & MITM brainstorming}
+\subsection{Peer Discovery and MITM brainstorming}
 
 Lying about who's online - If you want to send a message to a real node ``B'' but B is not listed as online, you won't send a message. However, if he lists ``B'' as online, ``B'' can be used to route messages validly by everyone. 
 
