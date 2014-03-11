@@ -7,7 +7,7 @@
 \usepackage{relsize}
 \usepackage[margin=1.0in]{geometry}
 
-\title{Blowship - Anonymous Communication via a Central Server}
+\title{Blowship - Untraceable Instantaneous Message Transfer via a Central Server}
 \author[*]{John Carlyle}
 \author[**]{Morgan McDermott}
 \affil[*]{University of angry bees}
@@ -17,16 +17,26 @@
 \maketitle
 
 \section*{Abstract} 
-  Many systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
+Many systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
 
 In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized p2p protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication. The primary reason behind a centeral server is to have a browser based service which needs a server to initialze the peer to peer network.
-\section{Introduction}
- 
-\section{Previous Work}
-\paragraph{Mixes.} Mixes are servers through which encrypted messages are sent, hiding the correlation between incoming and outgoing messages using encryption, pooling incoming messages, and a variety of other strategies. Mixes have seen wide use since Chaum first introduced them in his 1981 paper \cite{chaum-mix}. They have been used in systems such as MixMinion\cite{minion-design} to anonymously send and receive email. Onion routing systems such as Tor \cite{tor-design} use series of mixes as proxies for web data. 
 
-\paragraph{Nym systems.} Pseudonymous message delivery systems enable users to send and receive messages with a \textit{nym} (pseudonym) that cannot be traced back to their true identity. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient - which is what we are attempting to develop in this paper. 
-\paragraph{Private Information Retrieval.} PIR has been used to facilitate anonymous communication in a variety of ways. The Pynchon Gate \cite{wpes2005} is a nym system that uses information-theoretic PIR as a layer of indirection between a user and their nym - allowing users to retrieve mail sent to their nym with information-theoretic privacy guarantees. Tor-PIR \cite{TODO} uses PIR to distribute information about servers without forcing users to download the entire directory. 
+\section{Introduction}
+
+Traditional cryptography obsucres the message being sent from one party to another. This is useful for many purposes but there is an important aspect of your communication that is freely availble to anyone observing the transfer: who the message is being sent to. Much work has been done to build networks that can obscure message passing by esentially mixing the messages around in a large group of peers in such a way that a peer in the network, or even a large group of peers cannot figure out where the message is going to end up. Many of these system rely upon the fact that the user is accessing a constantly avaible resource, such as with tor\cite{tor}, or in the case of email one can wait as long as nessesary for a message to be read by the user on the other end.
+
+we are presenting to the reader is Untraceable Instantaneous Messaging, via a central server. Our system of message passing is initiated by the browser, allowing a person to browse to one central location and conveneintly use this service. The central server is primarily used as an entrypoint into a network of peers. The peers are used to obsfucate who is sending messages to whom, allowing the clients to communicate with both private content, all in as close to real time as possible given the constraints of the algorithms being used.
+
+
+\section{Previous Work}
+\begin{description}
+\item[Mixes] Mixes are servers through which encrypted messages are sent, hiding the correlation between incoming and outgoing messages using encryption, pooling incoming messages, and a variety of other strategies. Mixes have seen wide use since Chaum first introduced them in his 1981 paper \cite{chaum-mix}. They have been used in systems such as MixMinion\cite{minion-design} to anonymously send and receive email. Onion routing systems such as Tor \cite{tor-design} use series of mixes as proxies for web data. 
+
+\item[Nym systems] Pseudonymous message delivery systems enable users to send and receive messages with a \textit{nym} (pseudonym) that cannot be traced back to their true identity. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient - which is what we are attempting to develop in this paper. 
+
+\item[Private Information Retrieval] PIR has been used to facilitate anonymous communication in a variety of ways. The Pynchon Gate \cite{wpes2005} is a nym system that uses information-theoretic PIR as a layer of indirection between a user and their nym - allowing users to retrieve mail sent to their nym with information-theoretic privacy guarantees. Tor-PIR \cite{TODO} uses PIR to distribute information about servers without forcing users to download the entire directory. 
+
+\end{description}
 
 \section{Measuring Anonymity}
   \textit{Anonymity sets}, introduced by Chaum in his Dining Cryptographers paper \cite{chaum-dc}, are widely used to analyze the anonymity provided by various p2p privacy schemes. Given a message and whatever information an attacker has obtained, the anonymity set for that message is the set of users who could have sent it. An anonymity set of size 1 means that the attacker knows exactly who sent the message.
@@ -169,9 +179,6 @@ There are several problems with this configuration, however.
 First, Alice must communicate Charlie's ID and $i$ to bob anonymously. This could happen via the pseudo-p2p protocol as above. 
 
 Second, Alice and Bob both start talking to Charlie around the same time. If Charlie suspects Alice and Bob are talking to eachother, he can easily create a fake PIR database for all of Alice's inserts and all of Bob's retrievals, and if they continue to communicate normally he has found a connection. 
-
-\subsection{Sliding-Window PIR}
-To Prevent correlation between the Alice-Charlie and Bob-Charlie communication start times 
 
 
 \section{Future Work}
