@@ -25,7 +25,7 @@
 \section*{Abstract} 
 Many systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
 
-In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized peer-to-peer (P2P) protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication. The primary reason behind a centeral server is to have a browser based service which needs a server to initialze the P2P network.
+In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized peer-to-peer (P2P) protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication. The primary reason behind a centeral server is to have a browser based service which needs a server to route for a pseudo-P2P network.
 
 \section{Introduction}
 
@@ -56,7 +56,7 @@ Suppose we have a user such that his or her probability is $1$, then  $S = -(1 *
 In this context, we have several distinct types of adversaries we must consider:
 \begin{description}
 \item[Penguin] 
-  is any Peer who can intercept any messages and modify the content of that message.
+  is any malicious Peer. A penguin can send false messages to the server. 
 \item[Surge] 
   is a compromised central Server. He can alter and intercept any messages passing through, and can provide bogus information to any peer.
 \item[Proletariat] 
