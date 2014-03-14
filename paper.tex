@@ -1,4 +1,4 @@
-\documentclass[twocolumn,11pt,english]{paper}
+\documentclass[twocolumn,11pt,english]{article}
 \usepackage{comment}
 \usepackage{tikz}
 \usepackage{graphicx}
@@ -9,6 +9,7 @@
 \usepackage[margin=1.0in]{geometry}
 
 \title{Blowship - Untraceable Instantaneous Message Transfer via a Central Server}
+\date{}
 \author{
   Carlyle, John\\
   \textit{jcarlyle@ucsc.edu}
@@ -28,25 +29,15 @@ In this paper we present a centralized anonymity system that uses a single, untr
 
 \section{Introduction}
 
-Traditional cryptography hides the message being sent from one party to another. This is useful for many purposes but there is an important aspect of your communication that is freely availble to anyone observing the transfer: to whom the message is sent. Much work has been done to build networks that can obscure message passing by esentially mixing the messages around in a large group of peers in such a way that a peer in the network, or even a large group of peers cannot figure out the message's final destination. Many of these systems rely upon the fact that the user is accessing a constantly avaible resource, such as with Tor\cite{tor-design}, or in the case of email one can wait as long as nessesary for a message to be read by the recipient.
+Traditional cryptography hides the message being sent from one party to another. This is useful for many purposes but there is an important aspect of your communication that is freely availble to anyone observing the transfer: to whom the message is sent. Much work has been done to build networks that can obscure message passing by esentially mixing the messages around in a large group of peers in such a way that a peer in the network, or even a large group of peers, cannot figure out the message's final destination. Many of these systems rely upon the fact that the user is accessing a constantly avaible resource, such as with Tor\cite{tor-design}, or in the case of email one can wait as long as nessesary for a message to be read by the recipient.
 
 We present to the reader Untraceable Instantaneous Messaging, via a central server. Our message passing system is initiated by the browser, allowing a person to browse to one central location and conveniently use this service. A much different experience than with using many other P2P communication protocols. The central server is primarily used as an entrypoint into a network of peers. The peers are used to obsfucate who is sending messages to whom, allowing the clients to communicate with both private content and correspondant, all in as close to real time as possible given the constraints of the algorithms being used.
 
 \section{Conventions}
-All logs in this paper are $log_2$ unless otherwise specified.
+All logs in this paper are $\log_2$ unless otherwise specified. $N$ is the total number of peers in the network. A \textit{hop} is defined as a message passing from $peer_a$ to the server and then to $peer_b$, for reasons explained in section 5.
 
-\section{Previous Work}
-\begin{description}
-\item[Mixes] are servers through which encrypted messages are sent, hiding the correlation between incoming and outgoing messages using encryption, pooling incoming messages, and a variety of other strategies. Mixes have seen wide use since Chaum first introduced them in 1981 \cite{chaum-mix}. They have been used in systems such as MixMinion\cite{minion-design} to anonymously send and receive email. Onion routing systems such as Tor \cite{tor-design} use a series of mixes as proxies for web data. 
-
-\item[Nym systems] Pseudonymous message delivery systems enable users to send and receive messages with a \textit{nym} (pseudonym) that cannot be traced back to their true identity. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient - which is what develop in this paper. 
-
-\item[Private Information Retrieval] (PIR) has been used to facilitate anonymous communication in a variety of ways. The Pynchon Gate \cite{sassaman:wpes2005} is a nym system that uses information-theoretic PIR as a layer of indirection between a user and their nym - allowing users to retrieve mail sent to their nym with information-theoretic privacy guarantees. Tor-PIR \cite{MittalOTBG11} uses PIR to distribute information about servers without forcing users to download the entire directory. 
-
-\end{description}
-
-\section{Measuring Anonymity}
-Anonymity sets, introduced by \cite{chaum-dc}, are widely used to analyze the anonymity provided by various P2P privacy schemes. Given a message and whatever information an attacker has obtained, the anonymity set for that message is the set of users who could have sent it. For example, an anonymity set of size 1 means that the attacker knows exactly who sent the message.
+\subsection{Measuring Anonymity}
+Anonymity sets \cite{chaum-dc}, are widely used to analyze the anonymity provided by various P2P privacy schemes. Given a message and whatever information an attacker has obtained, the anonymity set for that message is the set of users who could have sent it. For example, an anonymity set of size 1 means that the attacker knows exactly who sent the message.
 
 This measure fails to capture some of the information gathered by the attacker. If, for instance, certain members of an anonymity set are more likely to have sent the message (which is never the case in Chaum's DC networks \cite{chaum-dc}), this information is not captured by the size of the anonymity set. 
 
@@ -55,21 +46,43 @@ To solve this problem, Diaz \cite{Diaz02} and Serjantov \cite{Serj02} independen
 Serjantov \cite{Serj02} calls this measure the \textit{size} $S$ of the anonymity probability distribution. Given $U$, the set of all users, and $p_u$, the probability that $u \in U$ sent the message, then the $size$ of the probability distribution is:
 
 \begin{center}
-  $ S = - \mathlarger{\sum}\limits_{u \in U} p_u $log$_2(p_u)$
+  $ S = - \mathlarger{\sum}\limits_{u \in U} p_u \log_2(p_u)$
 \end{center}
 
 Suppose we have a user such that his or her probability is $1$, then  $S = -(1 * 0) = 0$, meaning the attacker needs no more information to identify the user. 
 
 
+\subsection{Adversaries}
+In this context, we have several distinct types of adversaries we must consider:
+\begin{description}
+\item[Penguin] 
+  is any Peer who can intercept any messages and modify the content of that message.
+\item[Surge] 
+  is a compromised central Server. He can alter and intercept any messages passing through, and can provide bogus information to any peer.
+\item[Proletariat] 
+  is a group of colluding Penguins.
+\item[The Fort] 
+  is Surge and a Proletariat colluding. In this situation Surge could be generating new peers to act as Penguins in order to form The Fort.
+\end{description}
+
+\section{Previous Work}
+The majority of research into anonymous communication uses decentralized P2P networks. In some cases, however, it is necessary (and possibly beneficial) to communicate through a central server. 
+
+\subsection{Mixes}
+Mixes are servers through which encrypted messages are sent, hiding the correlation between incoming and outgoing messages using encryption, pooling incoming messages, and a variety of other strategies. Mixes have seen wide use since Chaum first introduced them in 1981 \cite{chaum-mix}. They have been used in systems such as MixMinion\cite{minion-design} to anonymously send and receive email. Onion routing systems such as Tor \cite{tor-design} use a series of mixes as proxies for web data. 
+
+\subsection{Nym systems} Pseudonymous message delivery systems enable users to send and receive messages with a \textit{nym} (pseudonym) that cannot be traced back to their true identity. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient - which is what we develop in this paper. 
+
+\subsection{Private Information Retrieval} Private Information Retrieval (PIR) has been used to facilitate anonymous communication in a variety of ways. The Pynchon Gate \cite{sassaman:wpes2005} is a nym system that uses information-theoretic PIR as a layer of indirection between a user and their nym - allowing users to retrieve mail sent to their nym with information-theoretic privacy guarantees. Tor-PIR \cite{MittalOTBG11} uses PIR to distribute information about servers without forcing users to download the entire directory. 
 
 \section{Privacy Goals}
 The goal of this system is to provide a method for secure communication between parties through a central server with low latency and low communication overhead. We satisfy these requirements by assuming the intermediate server may be compromised. We define secure communication as thus \textbf{[6]}: FIX THIS CITE. Not sure which one it is.
 \\\\\textbf{Communication Privacy:} Any party Eve cannot read the contents of intercepted messages sent between any two parties, Alice and Bob. 
-\\\textbf{Participant Privacy:} This is also called \textbf{Unobservability} and \textbf{Untraceability}. Any party Eve cannot determine with probability $p > \epsilon$ that Alice and Bob are communicating, given any chosen $\epsilon$ (with a clear lower bound of $\epsilon > 1/N$ where $N$ is the number of participants). The ability of multiple participants to collude and determine this with $p > \epsilon$ must be well defined.
+\\\textbf{Participant Privacy:} This is also called \textbf{Unobservability} and \textbf{Untraceability}. Any party Eve cannot determine with probability $p > \epsilon$ that Alice and Bob are communicating, given any chosen $\epsilon$ with a clear lower bound of $\epsilon > 1/N$. The ability of multiple participants to collude and determine this with $p > \epsilon$ must be well defined.
 \\\textbf{Destination Privacy:} Any party Eve in the network cannot determine the final destination of any party Alice's messages. This is a less stringent requirement than Participant Privacy.
 
-\section{Central Server Communication}
-The majority of research into anonymous communication uses decentralized P2P networks. In some cases, however, it is necessary (and possibly beneficial) to communicate through a central server. Many of the developed P2P techniques can be adapted by using a pseudo-P2P protocol, by having peers communicate with each other indirectly through the central server. 
+\section{The Na\"ive Protocol}
+Many of the developed P2P techniques can be adapted by using a pseudo-P2P protocol, by having peers communicate with each other indirectly through the central server. 
 
 In P2P protocols, delivering a message via a chain of peers or servers is a standard method to achieve anonymity. In this system we'll use terminology from Tor and call the chain of peers a message passes through a $circuit$. A pseudo-P2P circuit then consists of an alternating chain of peer-server and server-peer communications.
 
@@ -99,19 +112,6 @@ In P2P protocols, delivering a message via a chain of peers or servers is a stan
   \end{center}
   \caption{A simple pseudo-P2P circuit}
 \end{figure}
-
-\subsection{Adversaries}
-In this context, we have several distinct types of adversaries we must consider:
-\begin{description}
-\item[Penguin] 
-  is any Peer who can intercept any messages and modify the content of that message.
-\item[Surge] 
-  is a compromised central Server. He can alter and intercept any messages passing through, and can provide bogus information to any peer.
-\item[Proletariat] 
-  is a group of colluding Penguins.
-\item[The Fort] 
-  is Surge and Penguins colluding. 
-\end{description}
 
 
 \subsection{Basic Protocol}
