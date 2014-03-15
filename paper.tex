@@ -7,6 +7,7 @@
 \usepackage{relsize}
 \usepackage[T1]{fontenc}
 \usepackage[margin=1.0in]{geometry}
+\usepackage{pstricks}
 
 \title{Blowship - Untraceable Instantaneous Message Transfer via a Central Server}
 \date{}
@@ -35,6 +36,26 @@ We present to the reader Untraceable Instantaneous Messaging, via a central serv
 
 \section{Conventions}
 All logs in this paper are $\log_2$ unless otherwise specified. $N$ is the total number of peers in the network. A \textit{hop} is defined as a message passing from $peer_a$ to the server and then to $peer_b$, for reasons explained in section 5.
+\begin{figure}[ht]
+  \begin{center}
+    \begin{tikzpicture}[scale=0.2]
+      \tikzstyle{every node}+=[inner sep=0pt]
+      \draw [black] (32.9,-14.9) circle (3);
+      \draw (32.9,-14.9) node {$S$};
+      \draw [black] (32.9,-14.9) circle (2.4);
+      \draw [black] (27.7,-24.3) circle (3);
+      \draw (27.7,-24.3) node {$P_1$};
+      \draw [black] (38.3,-24.3) circle (3);
+      \draw (38.3,-24.3) node {$P_2$};
+      \draw [black] (29.15,-21.67) -- (31.45,-17.53);
+      \fill [black] (31.45,-17.53) -- (30.62,-17.98) -- (31.5,-18.47);
+      \draw [black] (34.39,-17.5) -- (36.81,-21.7);
+      \fill [black] (36.81,-21.7) -- (36.84,-20.76) -- (35.97,-21.25);
+    \end{tikzpicture}
+  \end{center}
+\caption{A hop between two peers}
+\end{figure}
+
 
 \subsection{Measuring Anonymity}
 Anonymity sets \cite{chaum-dc}, are widely used to analyze the anonymity provided by various P2P privacy schemes. Given a message and whatever information an attacker has obtained, the anonymity set for that message is the set of users who could have sent it. For example, an anonymity set of size 1 means that the attacker knows exactly who sent the message.
@@ -144,7 +165,7 @@ Let $P_{AB}$ be the probability that Alice sent a given message that was deliver
 This is fairly poor security. If Alice chooses $n = 5$, then if her chosen peers send no other messages until hers is delivered, Surge knows $P_{AB} > 1/6$ chance that Alice is talking to Bob. If $60\%$ of peers are part of the Fort, then Surge possibly knows $P_{AB} = 1$ if $n \subset s$, but the expectation is $E[P_{AB}] = 1/3$ which is very poor anonymity.
 
 \section{Improved Protocol}
-To begin solving these problems, we will need to change the protocol so that any non-Penguin peer will always wait until it can send \textbf{two or more messages simultaneously}. This is equivilant to turning each peer into a 2-threshold mix. \cite{TODO}
+To begin solving these problems, we will need to change the protocol so that any non-Penguin peer will always wait until it can send \textbf{two or more messages simultaneously}. This is equivilant to turning each peer into a 2-threshold mix. \cite{trickle02}
 
 If we assume that The Fort has not been established (no peers are colluding with Surge), then Alice only needs to choose $n = \log(N)$ to remain anonymous from Surge. If every node sends 2 messages at once, and her message passes through $\log(N)$ nodes, then there are $2^n = 2^{\log(n)} = N$ possible messages that Alice sent, and some $< N$ possible destinations. The likelihood is that in $\log(N)$ steps from Alice, there will be less than $2^n = N$ unique recipients of messages, but we can adjust for this by increasing the number of nodes $n$ we choose. If every node has an average unique branching factor of $z$ rather than $2$, we can just set $n = \log_z(N)$ and then $z^{\log_z(N)} = N$. Then, the size of Alice's anonymity probability distribution is $\approx 1$ since the sender probabilities are roughly uniform.
 
@@ -184,7 +205,6 @@ Intuitively, Alice would be in an anonymity set of size 2 when $\gamma = 0.5$. T
   \caption{Table 42.42 - Probabilities things are bad}
 \end{figure}
 
-\newpage
 As seen in table 42.42, the chance that Surge, having $80\%$ of 10000 peers colluding with him, can tell that Alice is talking to Bob with probability greater than $0.5$ is $20\%$. If Surge believes $P_{AB} = 0.5$ given 10000 peers, then the probability distribution size $S = 1.93$. 
 
 If this level of security is unacceptable, the length of the circuit can be chosen based on an estimate of $\phi$ and an acceptable $p(P_{AB} > \gamma)$. Assuming $\gamma = 0.5$, then 
@@ -194,37 +214,13 @@ $p(P_{AB} > 0.5)$ = $n\phi^{n-1} (1 - \phi ) + \phi^n $
 
 Although n is difficult to solve for directly (requiring the Lambert W equation), a we give a graph for $n$ and $\phi$ given $\gamma = 0.5$:
 
-\includegraphics*[width=\linewidth]{gamma5graph.png}
+\includegraphics*[width=\linewidth]{gamma5graph.eps}
 
 Given this graph it's clear that if the network is believed to be widely compromised, security can be made up for by choosing longer circuits. Although $\phi = 0.8$ makes $n = 10$ an unviable choice, at a circuit length of $n=20$ having $\phi = 0.8$ hardly affects the security. 
 
 \begin{comment}
   TODO: Apply PIR to obtain security guarantees even when $R \subset S$
 \end{comment}
-
-\subsection{Peer Discovery and MITM brainstorming}
-
-Chain verification - Keep a web of trust with the length of the path to a person inversely proportional to how trusted they are. Share web of trust with those we communicate with - only share nodes with a certain level of trust, and then trust nodes discovered this way with diminished trust. 
-
-If initial trust is only spread through person to person contact, then assigning negative trust is valuable because it reduces the value of colluding human nodes. 
-
-* Have nodes sign messages as they pass through, so that the path can be tested/verified. 
-
-\subsection{Peer Discovery}
-Having a central server could make peer discovery much more efficient. Unfortunately, if peers discover eachother through Surge, he could ensure that any peer only knows about compromised peers (Effectively making $\phi = 1$).
-
-This is a common problem in Onion routing schemes like Tor, as well as Mix networks. If directory servers collude with some routing servers, they can choose to only broadcast the existence of the compromised routing servers.
-
-MixMinion \cite{minion-design} solves these problems by having a small group of directory servers that only update nightly, having servers sign each other's directories, and ensuring that users download entire directories. These solutions are not feasible in our case since the set of online users is constantly in flux, and is likely to be too large to be sent to every user. Tor \cite{tor-design} likewise has a small number of trusted directory servers that share infrequently updated, signed directories.
-
-We maintain the efficiency of a central directory server while 
-
-\subsection{Man in the Middle} If both Alice and Bob are online, then they could use Diffie-Hellman to ensure that Surge isn't acting as a Man in the Middle. However, we'd like to allow offline delivery of messages.
-
-This requires some form of web of trust, or some means of verifying public keys without trusting Surge. 
-
-Users should maintain a list of known keys to make stuff good. 
-
 \subsection{Peers as Mixes}
 As previously discussed, peers act as mixes in this system - inheriting both their benefits and vulnerabilities. Many types of mixes have been developed, and Serjantov \cite{trickle02} has compiled common attacks and solutions. 
 A mix holds on to incoming messages until its \textbf{flush function} is satisfied, then it forwards some subset of its collected messages. Common attacks are variants of the $n - 1$, or $flooding$ attack, in which an attacker fills the mix with its own fake messages and then sends the 1 message he wishes to track. 
@@ -233,9 +229,81 @@ All known mix types are vulnerable to such exact attacks \cite{trickle02} -  att
 
 Fortunately, due to the nature of this system we can provide almost complete protection with \textbf{cover traffic} \cite{trickle02}, or having each peer send dummy messages along with the messages it's forwarding. A peer will at minimum send one dummy message along with every real message, maintaining a branching factor greater than two at every hop. Typically, obtaining complete protection with cover traffic is difficult - it requires the mix to choose dummy message recipients uniformally from all users\cite{trickle02}. In our system, however, randomly and anonymously choosing other online peers is designed to be efficient.
 
-It would also be possible to use inter-mix detours\cite{TODO}, having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
+It would also be possible to use inter-mix detours\cite{trickle02}, having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
 
-\section{Applying PIR}
+\section{Peer Information Retrieval}
+Our system stores all information about which peers are online and their public keys in the central server. 
+
+If Alice wishes to send a message to Bob, she needs to obtain the ID and public key for $n$ peers from the central server, as well as Bob's public key. To perform this request securely and efficiently, we use Private Information Retrieval (PIR).
+
+
+\subsection{Private Information Retrieval}
+  If Alice queried for information about these peers using a typical database, Surge would gain information about both who she is possibly talking to and which peers she uses in her circuits, dramatically reducing Alice's anonymity. 
+
+However, using Private Information Retrieval, (first introduced by Chor and Goldreich \cite{pir}), it is possible to have Alice obtain this information without the server getting any information about the records she retrieved. 
+
+The trivial way of achieving this is to send Alice the entire database. Although this is actually used in systems like Tor, it isn't practical given a system with thousands or possibly millions of records.
+
+The first Private Information Retrieval databases developed were  Information-Theoretical PIR (ITPIR), and operate by separating data between multiple servers. This model is fairly efficient, although it assumes the servers won't collude to discover user queries. 
+
+With a single server, PIR was discovered to still be possible, however. Computational PIR (first introduced by Chor \cite{CPIR}) uses computationally difficult mechanisms to prevent a server hosting a single database from learning which records users retrieve from it. 
+
+As a proof of concept, our system implements Gentry's CPIR system \cite{singledatabaseprivate}, which uses cyclic groups of prime powers to encode requests for data, and performs group operations to create a database response. This system has been analyzed and found to be less efficient than sending the entire database \cite{practicalPIR}(when considering a combination of both computation and communication overhead), but in the future we will implement a much faster lattice based system as analyzed by Olumofin and Goldberg in \cite{practicalPIR}.
+
+\subsection{Using PIR For Directories}
+To allow Alice to get information about which peers are online, their public keys, and the public keys of people she wishes to communicate with, we maintain two PIR databases.
+
+The first is a database of peers currently online, indexable by an integer between 0 and $N$, the number of online peers. Alice chooses peers for her circuits by querying for random indexes in this database:
+\\ \hfill\\ 
+\begin{tabular}{| l | l | l |}
+  \hline
+  Record ID & Peer ID & Peer Public Key \\ \hline
+  0 & 687542 & $pubkey_{687542}$  \\ \hline
+  1 & 552455 & $pubkey_{552455}$  \\ \hline
+  ... & ... & $...$  \\ \hline
+  n & 432314 & $pubkey_{432314}$  \\ \hline
+\end{tabular}
+
+\hfill\\\hfill\\The second is a similar database, except that it contains all known peers and is indexable by a user's ID. Alice uses this database to obtain Bob's public key:
+
+\hfill\\ 
+\begin{tabular}{| l | l | l |}
+  \hline
+  Peer ID & Peer Public Key \\ \hline
+  909787 & $pubkey_{909787}$  \\ \hline
+  424566 & $pubkey_{424566}$  \\ \hline
+  ... & $...$  \\ \hline
+  432314 & $pubkey_{432314}$  \\ \hline
+\end{tabular}
+
+
+\subsection{Peer Discovery}
+Using the model described above, peer discovery is efficient for users.  Unfortunately, if peers discover eachother through Surge, he could ensure that any peer only knows about compromised peers (Effectively making $\phi = 1$).
+
+This is a common problem in Onion routing schemes like Tor, as well as Mix networks. If directory servers collude with some routing servers, they can choose to only broadcast the existence of the compromised routing servers.
+
+MixMinion \cite{minion-design} solves these problems by having a small group of directory servers that only update nightly, having servers sign each other's directories, and ensuring that users download entire directories. These solutions are not feasible in our case since the set of online users is constantly in flux, and is likely to be too large to be sent to every user. Tor \cite{tor-design} likewise has a small number of trusted directory servers that share infrequently updated, signed directories.
+
+In our system, however, a compromised Surge is disincentivized from lying about which peers are online. Consider a situation in which Alice wishes to send a message to Bob. If Surge doesn't report any non-colluding peers as online, then Alice won't send any messages to Bob since he appears to be offline. If Surge doesn't exclude non-colluding peers from the online list, however, Alice will inevitably include some of them in her chosen circuits. 
+
+
+\subsection{Man in the Middle} 
+
+In this model, it's trivial for Surge to mount a Man in the Middle attack. If Alice wishes to talk to Bob, she first obtains Bob's public key from Surge. If Surge lies about Bob's public key to everyone but Bob, he can intercept all messages sent to Bob, decrypt them with a fake private key he generated for Bob, and re-encrypt them with Bob's real public key. In this way no one realizes that all of Bob's messages are being intercepted. 
+
+ Assuming that Surge can't lie about real peers being online (as discussed previously in Peer Discovery), Bob simply needs to ask random peers to query Surge for Bob's public key and send him the result. Requests sent to peers colluding with Surge could be faked, but Bob can send enough requests to gain any level of confidence he wishes that his key is being correctly distributed. 
+
+If Surge is willing to allow Bob to learn that he's lying about public keys, Surge can share a fake public key with the world and masquerade as Bob, intercepting all initial messages sent to him and potentially learning the identities of Bob's associates. Worse, he could masquerade only when he knows Bob is offline, while lying and saying that Bob is actually online.
+
+The solution to this attack is twofold: users need to store the keys of friends and acquaintances they trust, and the protocol should ensure that initial communications don't include uniquely identifying information about the sender (perhaps using pseudonymous communication for the initial request).
+
+\subsection{Trust}
+
+Man in the Middle attacks can be further mitigated by maintaining a web of trust of public keys. To obtain an initial web of trust, we will use the PGP web of trust \cite{zimmermann1995official} in this system. Users may import their PGP keys and use them as their public keys on the system. This may tie user identities in the system to real identities, but this could be avoided by implementing pseudonymity in the system, and by allowing users to elect to use new keys. 
+
+
+
+\section{Applying PIR to Routing}
 \subsection{PIR usage}
 An obvious way to utilize PIR for anonymous communication is as a ``Dead Drop''. If we have a PIR server Charlie, Alice could write her messages to block $i$ in Charlie's PIR database, then Bob could request block $i$ anonymously. This could enable us to increase the size of Alice's anonymity set (retaining a uniform distribution of probabilities, as well) while reducing our circuit length significantly. 
 
@@ -246,16 +314,34 @@ First, Alice must communicate Charlie's ID and $i$ to Bob anonymously. This coul
 
 Second, Alice and Bob both start talking to Charlie around the same time. If Charlie suspects Alice and Bob are talking to each other, he can easily create a fake PIR database for all of Alice's inserts and all of Bob's retrievals, and if they continue to communicate normally he has discovered a connection. 
 
+\section{Offline delivery of messages}
+ PYNCHON GATE
 
 \section{Future Work}
 \begin{description}
 \item[Pseudonymity.] Allow for parties to communicate securely without knowing each other's identities. Currently our system relies heavily (at least when a person first enters the network) on the fact that the person initiating the communication knows the person's key with whom he wants to communciate.
 
-\item[Faster circuits.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well. Currently we are doing a lot of public/private key encryption which is slow.
+\item[Faster encryption.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well. Currently we are doing a lot of public/private key encryption which is slow.
 
 \item[DoS.] We would like to address the issue of DoS attacks against networks by requiring messages to be accompanied by a proof of work. This would allow us to require that the messages being sent are by computers that are also helping to suport the network.
-\end{description}
 
+\item[Resilience.] Long circuits will inevitably lead to them breaking down due to people going offline intermittently. We need efficient ways of dealing with this. 
+
+
+\item[Analyze performance of using PIR] a
+
+\item[Final summary/review of protocol]a
+
+\item[Final security analysis of protocol]a
+
+\item[User storage for data, keys, mail, etc]a
+
+\item[Analyze reusing people in circuits]a
+
+\item[Message Padding]a
+
+\item[Clarify why cover traffic is needed]a
+\end{description}
 \section{Conclusion}
 Conclusion words here about our network which is basically whatever we have in the introduction
 
