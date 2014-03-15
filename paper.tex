@@ -35,6 +35,26 @@ We present to the reader Untraceable Instantaneous Messaging, via a central serv
 
 \section{Conventions}
 All logs in this paper are $\log_2$ unless otherwise specified. $N$ is the total number of peers in the network. A \textit{hop} is defined as a message passing from $peer_a$ to the server and then to $peer_b$, for reasons explained in section 5.
+\begin{figure}[ht]
+  \begin{center}
+    \begin{tikzpicture}[scale=0.2]
+      \tikzstyle{every node}+=[inner sep=0pt]
+      \draw [black] (32.9,-14.9) circle (3);
+      \draw (32.9,-14.9) node {$S$};
+      \draw [black] (32.9,-14.9) circle (2.4);
+      \draw [black] (27.7,-24.3) circle (3);
+      \draw (27.7,-24.3) node {$P_1$};
+      \draw [black] (38.3,-24.3) circle (3);
+      \draw (38.3,-24.3) node {$P_2$};
+      \draw [black] (29.15,-21.67) -- (31.45,-17.53);
+      \fill [black] (31.45,-17.53) -- (30.62,-17.98) -- (31.5,-18.47);
+      \draw [black] (34.39,-17.5) -- (36.81,-21.7);
+      \fill [black] (36.81,-21.7) -- (36.84,-20.76) -- (35.97,-21.25);
+    \end{tikzpicture}
+  \end{center}
+\caption{A hop between two peers}
+\end{figure}
+
 
 \subsection{Measuring Anonymity}
 Anonymity sets \cite{chaum-dc}, are widely used to analyze the anonymity provided by various P2P privacy schemes. Given a message and whatever information an attacker has obtained, the anonymity set for that message is the set of users who could have sent it. For example, an anonymity set of size 1 means that the attacker knows exactly who sent the message.
