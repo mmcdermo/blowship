@@ -211,13 +211,13 @@ If initial trust is only spread through person to person contact, then assigning
 * Have nodes sign messages as they pass through, so that the path can be tested/verified. 
 
 \subsection{Peer Discovery}
-Unfortunately, if peers discover eachother through Surge, he could ensure that any peer only knows about compromised peers (Effectively making $\phi = 1$).
+Having a central server could make peer discovery much more efficient. Unfortunately, if peers discover eachother through Surge, he could ensure that any peer only knows about compromised peers (Effectively making $\phi = 1$).
 
 This is a common problem in Onion routing schemes like Tor, as well as Mix networks. If directory servers collude with some routing servers, they can choose to only broadcast the existence of the compromised routing servers.
 
 MixMinion \cite{minion-design} solves these problems by having a small group of directory servers that only update nightly, having servers sign each other's directories, and ensuring that users download entire directories. These solutions are not feasible in our case since the set of online users is constantly in flux, and is likely to be too large to be sent to every user. Tor \cite{tor-design} likewise has a small number of trusted directory servers that share infrequently updated, signed directories.
 
-We solve this problem as follows: 
+We maintain the efficiency of a central directory server while 
 
 \subsection{Man in the Middle} If both Alice and Bob are online, then they could use Diffie-Hellman to ensure that Surge isn't acting as a Man in the Middle. However, we'd like to allow offline delivery of messages.
 
