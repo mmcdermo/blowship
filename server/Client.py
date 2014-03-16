@@ -180,7 +180,7 @@ if __name__ == "__main__":
             ned = tuple(map(int,f.read().split("\n")[0:-1]))
             
     except IOError:
-        ned = (0,0,0)
+        ned = (1,1,1)
         print "No keys found, consider making some with :genkey"
 
     p = Process(target=circuit,args=(name,msgs,ned))

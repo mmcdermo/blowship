@@ -99,7 +99,7 @@ def main():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     hostname = socket.gethostname()
     port = 8000
-    s.bind((hostname,port))
+    s.bind(('',port))
     s.listen(5)
     
     while True:
