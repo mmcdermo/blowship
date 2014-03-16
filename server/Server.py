@@ -67,24 +67,25 @@ def process_data(c, ID_SOCK, ned):
     Put the encrypted portion of the message into the SOCK dictionary
     for that user
     """
-    with lock:
-        #read data until END
-        d = ""
-        block = ""
-        while block.find("END") == -1:
-            block = str(c.recv(64))
-            d += block
-        d += block
-        d = d[:d.find("END")]
 
-        #reformat to integer list
-        d = pickle.loads(d)
-        d = rsa.decrypt(d, ned[0], ned[2], 15)
-        d = d.split("||")
+    #read data until END
+    d = ""
+    block = ""
+    while block.find("END") == -1:
+        block = str(c.recv(64))
+        d += block
+    d += block
+    d = d[:d.find("END")]
+
     
-        name = d[0].lstrip("x")
-        #write result to socket for another user to await transfer
-        ID_SOCK[name] = d[1] 
+    #reformat to integer list
+    d = pickle.loads(d)
+    d = rsa.decrypt(d, ned[0], ned[2], 15)
+    d = d.split("||")
+    
+    name = d[0].lstrip("x")
+    #write result to socket for another user to await transfer
+    ID_SOCK[name] = d[1] 
     c.close()
 
 def main():
@@ -97,7 +98,7 @@ def main():
     ID_SOCK = manager.dict()
 
     s = socket.socket()
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
     hostname = socket.gethostname()
     port = 8000
     s.bind(('',port))
@@ -112,7 +113,6 @@ def main():
         elif "circ" == v:
             Process(target=process_circuit, args=(c,ID_KEY,ID_STATUS,ID_SOCK,ned)).start()
         elif "data" == v:
-            print "data"
             Process(target=process_data, args=(c,ID_SOCK,ned)).start()
 
 

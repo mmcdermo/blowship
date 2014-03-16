@@ -60,9 +60,10 @@ def generateCircuit(n, enduser, message, keys, online, svrkeys):
 
     length = 1
     while length < n:
-        user = random.choose(online)
+        user = random.choice(online)
         pair = keys[user]
         ct = encrypt(ct, pair[1], pair[0], user, svrkeys)
+        length += 1
 
     return ct
 
@@ -114,14 +115,14 @@ def user(name, p, msgs, ned):
 
         if words == ":ls":
             s.send(words)
-            online = readFromSocketUntil(s)
-            print "Online users: " + online
+            online = ast.literal_eval(readFromSocketUntil(s))
+            print "Online users: %s" % online
         if words.startswith(":send"):
             words = words[6:]
             index = words.find(" ")
             target,msg = words[:index],words[index+1:]
             
-            circuit = generateCircuit(1, target, "msg"+name+": "+msg, keys, online, svrkeys)
+            circuit = generateCircuit(2, target, "msg"+name+": "+msg, keys, online, svrkeys)
             if circuit == None:
                 print "Do not have that user's key, try :ks"
             else:
