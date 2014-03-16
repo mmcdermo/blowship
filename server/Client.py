@@ -1,3 +1,4 @@
+import pickle
 import rsa
 from multiprocessing import Process, Manager
 import socket
@@ -31,11 +32,13 @@ def encrypt(message, n, e, userId, svrkey):
 
     #encrypt and prepend the username
     msg = rsa.encrypt(pad(message) + message, n, e, 15)
-    msg = userId + "||" + ":".join(map(str,msg))
+    msg = userId + "||" + pickle.dumps(msg,2)
+
 
     #encrypt for server second, no name required since every other decryption goes through server anyway
     msg = rsa.encrypt(pad(msg) + msg, svrkey[1], svrkey[0], 15)
-    msg = ":".join(map(str,msg))
+    msg = pickle.dumps(msg,2)
+
     return msg
     
 def sendData(data):
@@ -133,7 +136,8 @@ def decrypt(data,ned):
     """
     decrypt if you know what I mean wink wink nudge nudge
     """
-    data = map(int,data.split(":"))
+    data = pickle.loads(data)
+#    data = map(int,data.split(":"))
     return rsa.decrypt(data, ned[0], ned[2], 15)
 
 
