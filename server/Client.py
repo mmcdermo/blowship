@@ -5,6 +5,7 @@ import socket
 import threading
 import sys
 import ast
+import random
 
 lock = threading.RLock()
 host = socket.gethostname()
@@ -50,12 +51,19 @@ def sendData(data):
         tsock.send("data"+data+"END")
     tsock.close()
 
-def generateCircuit(n, enduser, message, keys, svrkeys):
+def generateCircuit(n, enduser, message, keys, online, svrkeys):
     if enduser not in keys.keys():
         return None
 
     #first encrypt for the intended recipient
     ct = encrypt(message, keys[enduser][1], keys[enduser][0], enduser, svrkeys)
+
+    length = 1
+    while length < n:
+        user = random.choose(online)
+        pair = keys[user]
+        ct = encrypt(ct, pair[1], pair[0], user, svrkeys)
+
     return ct
 
 
@@ -68,6 +76,7 @@ def user(name, p, msgs, ned):
     the origin of a message
     """
     keys = {}
+    online = []
     s = socket.socket()
     port = 8000
     s.connect((host,port))
@@ -105,13 +114,14 @@ def user(name, p, msgs, ned):
 
         if words == ":ls":
             s.send(words)
-            print "Server: " + s.recv(1024)
+            online = readFromSocketUntil(s)
+            print "Online users: " + online
         if words.startswith(":send"):
             words = words[6:]
             index = words.find(" ")
             target,msg = words[:index],words[index+1:]
             
-            circuit = generateCircuit(5, target, "msg"+name+": "+msg, keys, svrkeys)
+            circuit = generateCircuit(1, target, "msg"+name+": "+msg, keys, online, svrkeys)
             if circuit == None:
                 print "Do not have that user's key, try :ks"
             else:

@@ -32,7 +32,7 @@ def process_client(c, ID_KEY, ID_STATUS, ID_SOCK, ned):
             print c_id + " sent a new public key " + v
         elif v.startswith(":ls"):
             print "list requested, sending: %s" % ID_STATUS
-            c.send("%s" % filter(lambda x: ID_STATUS.get(x, False)  == True,ID_STATUS.keys()))
+            c.send("%sEND" % filter(lambda x: ID_STATUS.get(x, False)  == True,ID_STATUS.keys()))
         elif v.startswith(":ks"):
             print "keys requested, sending: %s" % ID_KEY
             c.send("%sEND" % ID_KEY)
