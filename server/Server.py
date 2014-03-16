@@ -1,3 +1,4 @@
+import rsa
 from multiprocessing import Process, Manager
 import socket
 import threading
@@ -6,15 +7,14 @@ import sys
 
 lock = threading.RLock()
 
-def decrypt(data):
-    return data
-
-def process_client(c, ID_KEY, ID_STATUS, ID_SOCK):
+def process_client(c, ID_KEY, ID_STATUS, ID_SOCK, ned):
     c_id = c.recv(1024)
     print c_id + " logged in"
     with lock:
         ID_STATUS[c_id] = True
         ID_SOCK[c_id] = ""
+
+    c.send(str(ned[1])+"n"+str(ned[0]))
 
     running = True
     while running:
@@ -25,7 +25,6 @@ def process_client(c, ID_KEY, ID_STATUS, ID_SOCK):
             c.send("bye")
         elif v.startswith(":setkey"):
             v = v[7:]
-            v = v.strip()
             with lock:
                 ID_KEY[c_id] = v
             c.send("reset key to: " + v)
@@ -35,15 +34,7 @@ def process_client(c, ID_KEY, ID_STATUS, ID_SOCK):
             c.send("%s" % filter(lambda x: ID_STATUS.get(x, False)  == True,ID_STATUS.keys()))
         elif v.startswith(":ks"):
             print "keys requested, sending: %s" % ID_KEY
-            c.send("%s" % ID_KEY)
-        else:
-            print "Got message: " + v
-            v = decrypt(v)
-            index = v.find("||")
-            forward,body = v[:index],v[index+2:]
-            print "sending " + body
-            with lock:
-                ID_SOCK[forward] = body
+            c.send("%sEND" % ID_KEY)
 
 
     with lock:
@@ -52,7 +43,7 @@ def process_client(c, ID_KEY, ID_STATUS, ID_SOCK):
     c.close()
 
 
-def process_circuit(c, ID_KEY, ID_STATUS, ID_SOCK):
+def process_circuit(c, ID_KEY, ID_STATUS, ID_SOCK, ned):
     c_id = c.recv(1024)
 
     running = True
@@ -62,19 +53,43 @@ def process_circuit(c, ID_KEY, ID_STATUS, ID_SOCK):
         if d == None:
             running = False
         elif d != "":
-            c.send(d)
+            c.send(d+"END")
             ID_SOCK[c_id] = ""
 
     with lock:
         del ID_SOCK[c_id]
 
-def process_data(c, ID_SOCK):
-    c_id = c.recv(4)
-    d = c.recv(1024)
-    ID_SOCK[c_id] = decrypt(d)
+def process_data(c, ID_SOCK, ned):
+    """
+    Data sent from a client that is being used as a relay
+    Decrypt with the server key and look at the attached username
+    Put the encrypted portion of the message into the SOCK dictionary
+    for that user
+    """
+
+    #read data until END
+    d = ""
+    block = ""
+    while block.find("END") == -1:
+        block = str(c.recv(64))
+        d += block
+    d += block
+    d = d[:d.find("END")]
+
+    #reformat to integer list
+    d = map(int, d.split(":"))
+    d = rsa.decrypt(d, ned[0], ned[2], 15)
+    d = d.split("||")
+    
+    name = d[0].lstrip("x")
+    #write result to socket for another user to await transfer
+    ID_SOCK[name] = d[1] 
     c.close()
 
 def main():
+    ned = rsa.newKey(10**100,10**101,50)
+    print "Keys\nn = %s\ne = %s\nd = %s\n" % (ned[0],ned[1],ned[2])
+
     manager = Manager()
     ID_KEY = manager.dict()
     ID_STATUS = manager.dict()
@@ -92,12 +107,11 @@ def main():
         c.send("init")
         v = c.recv(4)
         if "user" == v:
-            Process(target=process_client, args=(c,ID_KEY,ID_STATUS,ID_SOCK)).start()
+            Process(target=process_client, args=(c,ID_KEY,ID_STATUS,ID_SOCK, ned)).start()
         elif "circ" == v:
-            print "starting circ thread"
-            Process(target=process_circuit, args=(c,ID_KEY,ID_STATUS,ID_SOCK)).start()
+            Process(target=process_circuit, args=(c,ID_KEY,ID_STATUS,ID_SOCK,ned)).start()
         elif "data" == v:
-            Process(target=process_data, args=(c,ID_SOCK))
+            Process(target=process_data, args=(c,ID_SOCK,ned)).start()
 
 
 if __name__ == "__main__":
