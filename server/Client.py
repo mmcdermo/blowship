@@ -6,7 +6,7 @@ import sys
 import ast
 
 lock = threading.RLock()
-hostname = socket.gethostname()
+host = socket.gethostname()
 
 def readFromSocketUntil(s, signal="END"):
     data_from_server = ""
@@ -41,7 +41,7 @@ def encrypt(message, n, e, userId, svrkey):
 def sendData(data):
     tsock = socket.socket()
     port = 8000
-    tsock.connect((hostname,port))
+    tsock.connect((host,port))
     
     if "init" == tsock.recv(4):
         tsock.send("data"+data+"END")
@@ -166,10 +166,11 @@ def circuit(name, msgs, ned):
 
 if __name__ == "__main__":
     name = sys.argv[1]
+    #this is dumb but doesn't seem worth it to use getopt
     try:
-        hostname = sys.argv[2]
+        host = sys.argv[2]
     except:
-        hostname = "localhost"
+        pass
     
     manager = Manager()
     msgs = manager.list()
