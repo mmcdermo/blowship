@@ -77,9 +77,10 @@ def process_data(c, ID_SOCK, ned):
     d += block
     d = d[:d.find("END")]
 
+    print "Process '%s'" % d
     
     #reformat to integer list
-    d = pickle.loads(d)
+    d = pickle.loads(str(d))
     d = rsa.decrypt(d, ned[0], ned[2], 15)
     d = d.split("||")
     

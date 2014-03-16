@@ -147,7 +147,7 @@ def decrypt(data,ned):
     """
     decrypt if you know what I mean wink wink nudge nudge
     """
-    data = pickle.loads(data)
+    data = pickle.loads(str(data))
 #    data = map(int,data.split(":"))
     return rsa.decrypt(data, ned[0], ned[2], 15)
 
