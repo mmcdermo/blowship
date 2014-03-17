@@ -26,11 +26,11 @@
 \section*{Abstract} 
 Many systems have been developed that preserve the anonymity of the sender and receiver of data. These systems are typically decentralized, routing messages through some series of trusted or untrusted peers and servers. 
 
-In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized peer-to-peer (P2P) protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication. The primary reason behind a centeral server is to have a browser based service which needs a server to route for a pseudo-P2P network.
+In this paper we present a centralized anonymity system that uses a single, untrusted central server, adapting decentralized peer-to-peer (P2P) protocols to work in this context, and combine these with Computational Private Information Retrieval (CPIR) to enable low-latency, low-overhead anonymous communication. The primary reason behind a central server is to have a browser based service which needs a server to route for a pseudo-P2P network.
 
 \section{Introduction}
 
-Traditional cryptography hides the message being sent from one party to another. This is useful for many purposes but there is an important aspect of your communication that is freely availble to anyone observing the transfer: the connection between sender and recipient. 
+Traditional cryptography hides the message being sent from one party to another. This is useful for many purposes, but there is an important aspect of your communication that is freely availble to anyone observing the transfer: the connection between sender and recipient. 
 
 Much work has been done to build networks that can obscure this connection by passing the message through a series of peers in such a way that no peer, or even large group of peers, can determine its destination. Many of these systems route the message through dedicated peers that are always online (as with Mix systems \cite{chaum-mix}, like the popular Tor\cite{tor-design} anonymity system). Many of these systems are designed to relay email and as such have high latency (as in \cite{minion-design}, although there are systems like Tor designed specifically to have low latency. 
 
@@ -38,7 +38,7 @@ In most cases, these systems are highly decentralized. In Tor for example, the r
 
 Current browsers have limited P2P communication capability - currently, they only have the ability to facilitate P2P distribution of media like video \cite{daoust2012towards}, and can't communicate with general purpose messages. For this reason, there are no pure P2P anonymization networks that operate at the browser level without using plugins. 
 
-We present to the reader Untraceable Low-Latency Messaging via a Central Server. Our message system is accessed via the browser, allowing a person to browse to one central location and conveniently use this service, rather than using an external program for anonymity as with existing P2P services. The central server is acts as an intermediary and facilitator for the network of peers using it. The peers are used to obsfucate who is sending messages to whom, allowing the clients to maintain anonymity and message security, in as close to real time as possible.
+We present to the reader Untraceable Low-Latency Messaging via a Central Server. Our message system is accessed via the browser, allowing a person to browse to one central location and conveniently use this service, rather than using an external program for anonymity as with existing P2P services. The central server acts as an intermediary and facilitator for the network of peers using it. The peers are used to obsfucate who is sending messages to whom, allowing the clients to maintain anonymity and message security, in as close to real time as possible.
 
 \section{Previous Work}
 The majority of research into anonymous communication uses decentralized P2P networks. In our work, we develop a centralized anonymous communication network using principles and protocols from these decentralized systems. 
@@ -50,7 +50,7 @@ Mixes are servers through which encrypted messages are sent, hiding the correlat
 
 Some systems use a fixed route of Mixes (as in MixMinion), while others allow clients to choose their own route through the mixes (as in Tor).
 
-The anonymity mixes provide depends on many factors and was thoroughly analyzed by Serjantov in~\cite{trickle02}. In our system we use peers in the network as mixes, and will analyze their security using the known attacks that Serjantov presents (See Section~\ref{sec:PeersAsMixes} for a more in depth discussion). 
+The anonymity mixes provide depends on many factors and was thoroughly analyzed by Serjantov~\cite{trickle02}. In our system we use peers in the network as mixes, and will analyze their security using the known attacks that Serjantov presents (See Section~\ref{sec:PeersAsMixes} for a more in depth discussion). 
 
 \subsection{Nym systems} Pseudonymous message delivery systems enable users to send and receive messages with a \textit{nym} (pseudonym) that cannot be traced back to their true identity \cite{sassaman:wpes2005}. Many of these systems rely on having an anonymous ``forward'' channel that allows a user to send a message without attackers being able to deduce the recipient. Our paper implements exactly this forward channel, and so could easily be coupled with a Nym system. 
 
@@ -62,7 +62,7 @@ The trivial way of achieving this is to send the user the entire database. Altho
 
 The first Private Information Retrieval databases developed were  Information-Theoretical PIR (ITPIR), and operate by separating data between multiple servers\cite{pir}. This model is fairly efficient, although it assumes the servers won't collude to discover user queries. 
 
-With a single server, PIR was discovered to still be possible, however. Computational PIR (first introduced by Chor \cite{CPIR}) uses computationally difficult mechanisms to prevent a server hosting a single database from learning which records users retrieve from it. 
+It was discovered that PIR is possible with a single server. Computational PIR (first introduced by Chor \cite{CPIR}) uses computationally difficult mechanisms to prevent a server hosting a single database from learning which records users retrieve from it. 
 
 In all known PIR systems, query anonymity comes at a cost. It has been shown that the database must perform an $O(n)$ operation to respond to each query\cite{CPIR}, where $n$ is the size of the database. If this weren't the case, the database wouldn't touch every bit in the database to respond to a query and would gain some information about the query itself. 
 
@@ -178,7 +178,7 @@ Final Message: $F_{S1}[F_{S2}[...F_{SB}[ M ]]]$
 \label{messageStructure}
 \end{figure}
 
-Each successive party receives a message and an ID to forward that message to, and only that party can read its message. Importantly, any Penguin or Proletariat without collusion from Surge doesn't gain any information about the source or destination of the message it's passing along. 
+Each successive party receives a message and an ID to forward that message to, and only that party can read its message. Any Penguin or Proletariat without collusion from Surge doesn't gain any information about the source or destination of the message it's passing along. 
 
 Note that Surge can't track a message by its contents, since it gets decrypted and changed by each successive peer. 
 
@@ -186,7 +186,7 @@ In this system, peers operate exactly as Mixes in the literature \cite{chaum-mix
 
 This system is designed so that without collusion from Surge, Penguins or a Proletariat are powerless to do anything but to delay or fail to forward messages. They don't know the ID of the next person they are forwarding the message to (since it's encrypted with the server's key), and obtain no other information when forwarding messages. 
 \subsection{Security Flaws}
-Here we'll perform a simplified analysis of the security flaws of the basic, na\"ive system described so far. 
+Here we will perform a simplified analysis of the security flaws of the basic, na\"ive system described so far. 
 Let $P_{AB}$ be the probability that Alice sent a given message that was delivered to to Bob. 
 \begin{enumerate}
 \item\textbf{Linear Chain.} If we assume that Alice's message is the only message sent by any of $p_1 \ldots p_n$ where $p_i$ is a peer, Surge can determine that $P_{AB} > (n+1)^{-1} \gg 1/N$. This is because Surge knows that one of $A \cup \{p_1 \ldots p_n\}$ talked to Bob.
@@ -363,9 +363,9 @@ Using the model described above, choosing random peers for use in a circuit is e
 
 This is a common problem in Onion routing schemes like Tor, as well as Mix networks. If directory servers collude with some routing servers, they can choose to only broadcast the existence of the compromised routing servers.
 
-MixMinion \cite{minion-design} solves these problems by having a small group of directory servers that only update nightly, having servers sign each other's directories, and ensuring that users download entire directories. These solutions are not feasible in our case since the set of online users is constantly in flux, and is likely to be too large to be sent to every user. Tor \cite{tor-design} likewise has a small number of trusted directory servers that share infrequently updated, signed directories.
+MixMinion \cite{minion-design} solves these problems by having a small group of directory servers that only update nightly, having servers sign each other's directories, and ensuring that users download entire directories. This solution is not feasible because set of online users is constantly changing. Sending the entire user list to every user each time someone logs on or off is infeasable. Tor \cite{tor-design} likewise has a small number of trusted directory servers that share infrequently updated, signed directories.
 
-In our system, however, a compromised Surge is disincentivized from lying about which peers are online. Consider a situation in which Alice wishes to send a message to Bob. If Surge doesn't report any non-colluding peers as online, then Alice won't send any messages to Bob since he appears to be offline. If Surge doesn't exclude non-colluding peers from the online list, however, Alice will inevitably include some of them in her chosen circuits. Since Surge doesn't know that Alice and Bob are communicating beforehand, he is forced to either include or exclude all non-colluding peers from the online-peers database as a whole. 
+In our system, however, a compromised Surge is disincentivized from lying about which peers are online. Consider a situation in which Alice wishes to send a message to Bob. If Surge doesn't report any non-colluding peers as online, then Alice won't send any messages to Bob since he appears to be offline. If Surge doesn't exclude non-colluding peers from the online list, however, Alice will inevitably include some of them in her chosen circuits. Since Surge doesn't know that Alice and Bob are communicating beforehand, he is forced to either include or exclude all non-colluding peers from the online-peers database~as~a~whole. 
 
 
 \subsection{Man in the Middle} 
@@ -374,7 +374,7 @@ In this model, it's trivial for Surge to mount a Man in the Middle attack. If Al
 
  Assuming that Surge can't lie about real peers being online (as discussed in Section~\ref{sec:PeerDiscovery}), Bob simply needs to ask random peers to query Surge for Bob's public key and send him the result (We will call this \textbf{Auditing}). Requests sent to peers colluding with Surge could be faked, but Bob can send enough requests to gain any level of confidence he wishes that his key is being correctly distributed. 
 
-If Surge is willing to allow Bob to learn that he's lying about public keys, Surge can share a fake public key with the world and masquerade as Bob, intercepting all initial messages sent to him and potentially learning the identities of Bob's associates. Worse, he could masquerade only when he knows Bob is offline, while lying and saying that Bob is actually online.
+If Surge is willing to allow Bob to learn that he's lying about public keys, Surge can share a fake public key with the world and masquerade as Bob, intercepting all initial messages sent to him and potentially learning the identities of Bob's associates. Worse, he could masquerade as Bob when he knows Bob is offline.
 
 The solution to this attack is twofold: users need to store the keys of friends and acquaintances they trust, and the protocol should ensure that initial communications don't include uniquely identifying information about the sender (perhaps using pseudonymous communication for the initial request).
 
