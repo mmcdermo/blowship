@@ -128,6 +128,7 @@ The goal of this system is to provide a method for secure communication between 
 \item\textbf{Untraceability:} This is also called \textbf{Unobservability}. Our definition is that any party Eve cannot determine with probability $p > \epsilon$ that Alice and Bob are communicating, given a chosen $\epsilon$ (with a clear lower bound of $\epsilon > 1/N$). The ability of multiple participants to collude and determine this with $p > \epsilon$ must be well defined.
 \end{enumerate}
 \section{The Na\"ive Protocol}
+\label{sec:naive}
 Many of the developed P2P techniques can be adapted by using a pseudo-P2P protocol, having peers communicate with each other indirectly through the central server. 
 
 In P2P protocols, delivering a message via a chain of peers or servers is a standard method to achieve anonymity. In this system we'll use terminology from Tor\cite{tor-design} and call the chain of peers a message passes through a $circuit$. A pseudo-P2P circuit then consists of an alternating chain of peer-server and server-peer communications.
@@ -161,6 +162,7 @@ In P2P protocols, delivering a message via a chain of peers or servers is a stan
 
 
 \subsection{Basic Protocol}
+\label{sec:basic}
 Assume that Alice has obtained Bob's public key and unique ID while maintaining her anonymity. This could be achieved using our directory service as outlined in Section~\ref{sec:PIRDirectories}, or by exchanging keys in advance through some other channel. Assume also that Alice can obtain the public keys and IDs for $n \le N$ peers at random while hiding her choice from Surge (This again can be done using the service in Section~\ref{sec:PIRDirectories}).
 
 Alice can then send a message to Bob that will follow the path 
@@ -204,6 +206,7 @@ If we assume that The Fort has not been established (no peers are colluding with
 
 In this way Surge gains no information about the sender of the message. If Surge knows Alice will choose $n = \log(N)$, then he can rule out any peer in the chain with distance less than $n$ from Alice, and then $P_{AB} = 2^{-(\log(N)-1)} = 2/N$, and $S = - \frac{1}{4} \log(\frac{1}{2N})$ which is still reasonable, though Alice could compensate further by randomly choosing the length of her circuit. 
 
+
 \subsection{Peers as Mixes}
 \label{sec:PeersAsMixes}
 As previously discussed, peers act as mixes in this system - inheriting both their benefits and vulnerabilities. Many types of mixes have been developed, and Serjantov \cite{trickle02} has compiled common attacks and solutions. 
@@ -217,7 +220,10 @@ Fortunately, due to the nature of this system we can provide almost complete pro
 
 It would also be possible to use inter-mix detours\cite{trickle02}, having peers randomly decide to introduce new hops to prevent Surge from recognizing his own messages sent during an $n - 1$ attack. However, this reduces reliability, increases latency, and given the protection that cover traffic provides seems unnecessary in this system. 
 
+ In mix systems, it is important that messages are padded to be the same length to prevent message correlation \cite{chaum-mix}. Without this, Surge can inspect the size of messages sent to a peer and gain information about which incoming messages might be outgoing messages. 
+
 \subsection{Anonymity inside The Fort} 
+\label{sec:thefort}
 Using this improved pseudo-P2P message system, we will analyze the security of Alice sending a single message to Bob when Surge colludes with Penguins to form The Fort. 
 
 Assuming the set $S$ of peers colludes with the server where $s = |S| > n$, and Alice chooses her circuit $C$ of peers randomly (where $|C| = n$), there is some chance that all chosen peers are colluding with Surge $(R \subset S)$ and so Alice's identity is completely compromised $(P_{AB} = 1$ and $S = 0)$. 
@@ -256,6 +262,7 @@ To gain an intuition about what values of $\gamma$ mean, we can then plot $S$ fo
 As we can see in Figure~\ref{gammaS}, having additional peers in the network (higher $N$ values) only helps increase Alice's anonymity ($S$ value) when $\gamma$ is small. That is, having more peers in the network doesn't really mitigate the security lost if Surge already believes that Alice sent a message with probability $0 \ll \gamma < 1 $. 
 
 \subsection{Likelihood of the worst-case}
+\label{sec:worstcase}
 We'd like to know how likely the worst-case ($p(P_{AB} > \gamma)$) scenario is given the circuit length chosen by Alice. 
 
 If we let $x$ be the number of compromised peers Alice must choose such that $p(P_{AB} > \gamma)$, we obtain: 
@@ -384,50 +391,57 @@ Man in the Middle attacks can be further mitigated by maintaining a web of trust
 
 
 
-\section{Applying PIR to Routing}
-\subsection{PIR usage}
-An obvious way to utilize PIR for anonymous communication is as a ``Dead Drop''. If we have a PIR server Charlie, Alice could write her messages to block $i$ in Charlie's PIR database, then Bob could request block $i$ anonymously. This could enable us to increase the size of Alice's anonymity set (retaining a uniform distribution of probabilities, as well) while reducing our circuit length significantly. 
 
-\subsection{PIR issues}
+\section{Future Work}
+\begin{description}
+\item[Pseudonymity and offline message delivery.] We would like to allow for parties to communicate securely without knowing each other's identities. Currently our system relies heavily on a peer knowing the public key of the final recipient of their message. 
+
+To obtain both pseudonymity and offline message delivery, we could employ a Pynchon Gate as developed by Sassaman \cite{sassaman:wpes2005}. We would need to use CPIR instead of ITPIR since we are employing a single central server, but the same principle allowing for pseudonymity applies. 
+
+\item[Faster encryption.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well. Currently we are doing a lot of public/private key encryption which is slow.
+
+\item[DoS.] We would like to address the issue of DoS attacks against networks by requiring messages to be accompanied by a proof of work. This would allow us to require that the messages being sent are by computers that are also helping to suport the network.
+
+\item[Peer Storage.]
+  Ultimately it will be necessary for the system to offer storage to peers using the network. This will allow peers to store their keyring on the central server, as well as mail that they have already received. The data stored by the server would be encrypted entirely by the peer, ensuring that the server can't obtain the contents of their mail, which keys they trust, etc.  
+
+\item[Applying PIR to Routing]
+We could potentially reduce the length of circuits by using PIR databases as a hop in the chain. An obvious way to utilize PIR for anonymous communication is as a ``Dead Drop''. If we have a PIR server Charlie, Alice could write her messages to block $i$ in Charlie's PIR database, then Bob could request block $i$ anonymously. This could enable us to increase the size of Alice's anonymity set (retaining a uniform distribution of probabilities, as well) while reducing our circuit length significantly. 
+
 There are, however, several problems with this configuration.
 
 First, Alice must communicate Charlie's ID and $i$ to Bob anonymously. This could happen via the pseudo-P2P protocol as above. 
 
 Second, Alice and Bob both start talking to Charlie around the same time. If Charlie suspects Alice and Bob are talking to each other, he can easily create a fake PIR database for all of Alice's inserts and all of Bob's retrievals, and if they continue to communicate normally he has discovered a connection. 
 
-\section{Offline delivery of messages}
- PYNCHON GATE
-
-\section{Future Work}
-\begin{description}
-\item[Pseudonymity.] Allow for parties to communicate securely without knowing each other's identities. Currently our system relies heavily (at least when a person first enters the network) on the fact that the person initiating the communication knows the person's key with whom he wants to communciate.
-
-\item[Faster encryption.] Like Tor, we could use layers of symmetric encryption between successive pairs of peers in a circuit. Using a public/symmetric system like Tor could help with pseudonymity as well. Currently we are doing a lot of public/private key encryption which is slow.
-
-\item[DoS.] We would like to address the issue of DoS attacks against networks by requiring messages to be accompanied by a proof of work. This would allow us to require that the messages being sent are by computers that are also helping to suport the network.
-
-\item[Resilience.] Long circuits will inevitably lead to them breaking down due to people going offline intermittently. We need efficient ways of dealing with this. 
-
-
-\item[Analyze performance of using PIR] a
-
-\item[Final summary/review of protocol]a
-
-\item[Final security analysis of protocol]a
-
-\item[User storage for data, keys, mail, etc]a
-
-\item[Analyze reusing people in circuits]a
-
-\item[Message Padding]a
-
-\item[Clarify why cover traffic is needed]a
+We would like to develop this strategy further in the future - at present, it is not efficient or secure enough to employ.
 \end{description}
+
+\section{Summary}
+ We've summarized some of the key points of the protocol in Figure~\ref{fig:keypoints}, and give a broad outline of the protocol below:
+
+\begin{figure*}[scale=0.7]
+\includegraphics{summary.eps}
+\caption{Key Points of Protocol Summary}
+\label{fig:keypoints}
+\end{figure*}
+
+\begin{enumerate}
+  
+  \item The central server houses two Private Information Retrieval databases: one containing all online users, and one containing all user's keys. Peers can only communicate indirectly through the server, and always do so with encrypted messages. 
+  \item Messages are sent using the basic structure from Section~\ref{sec:basic}, using layers of public key encryption to pass through the server and peers in an alternating fashion. 
+  \item Circuits through which messages are sent are chosen by the peer who wishes to send a message. These circuits are chosen randomly from the server's PIR database of online users. The circuit length can be chosen as $log(N)$ where $N$ is the number of online users, as discussed in Section~\ref{sec:thefort}, or according to acceptable risk as discussed in Section~\ref{sec:worstcase}.
+  \item Peers act as relays for other peers, but don't know the true destination of messages they decrypt and relay back to the server. It's important that since peers act as mixes (Section~\ref{sec:PeersAsMixes}), they always wait until they receive two messages before they forward them onward, that messages are always padded to a fixed length, and that peers always generate 1 fake message as cover traffic, using a circuit length of at least 1 hop.
+  \item Peers need to audit their public keys by requesting that other peers request their public key and relay it back to them, to make man-in-the-middle attacks more challenging. Additionally, peers need to store the retrieved keys of other peers in order to detect discrepancies that could indicate an attack. Keys should be signed and given trust levels as in PGP to further mitigate this risk. 
+\end{enumerate}
+
 \section{Conclusion}
-Conclusion words here about our network which is basically whatever we have in the introduction
+In this paper, we have introduced a system for sending anonymous messages via a central server with low-latency. This system is designed to prevent the correlation between the sender and receiver of messages, using an adaption of P2P protocols to the central server setting. We analyzed the probabilistic security of using peers as 2-threshhold mixes given different circuit lengths.
 
+We showed that malicious peers on their own only have the power to delay or prevent message delivery. When colluding with the central server, peers can only reduce a sender's security probabilistically. This risk can be mitigated by circuit length. To prevent attacks by the central server using its databases and knowledge of keys, we have suggested the use of a web of trust, auditing, and key storage. 
 \newpage
-
+\begin{figure*}
 \bibliography{paper.bib}
 \bibliographystyle{unsrt}
+\end{figure*}
 \end{document}
