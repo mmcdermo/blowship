@@ -1,0 +1,36 @@
+#Readme for proof of concept of Blowship implementation
+Authors:
+- John Carlyle
+- Morgan McDermott
+
+Files:
+- Server.py:
+   Launch using python Server.py
+   Will generate RSA keys and listen on port 8000
+- Client.py
+  Launch using python Client.py username [optional IP addr]
+  localhost is assumed if IP is omitted.
+  List of commands:
+       :genkey - generates RSA keypair
+       :setkey - sets the current users keys on the server you are currently connected to.
+       :ks     - Get list of keys of users on the server (need this to send messages)
+       :ls     - Get list of users who are currently connected to the server (need this to send messages)
+       :send name message here of arbitrary length - Sends a message to 'name' through the network. Currently very buggy because of our RSA library.
+
+Bugs:
+- RSA Lib is awful. I made the mistake of trusting a random RSA lib I found on github because the interface with it looked really easy. Bad idea. Bad Idea. BAD IDEA.
+      Our implementation is currently bound to this terrible library because it takes in an ascii string and returns a list of longs in python.
+      In order to encrypt this agian I decided it would be a good idea to pickle this into another string so it could be encrypted again. 
+      Pickling the object and sending it over a socket occasionally causes it to lose its EOF signal causing the server to choke trying to depickle it.
+- RSA is very slow. This implementation seems to be slower than others. 
+- RSA bloats the output size much more then needed. Need to repackage as ascii again. This means that encrypting multiple times is incredibly slow. 
+- The above two bugs cause circuits of size 2 to deliver in anywhere from 30 seconds to 2 minutes. Circuits of length 3 will never complete. 
+      Lesson learned, vet libraries much more thuroughly before using them.
+
+Future Work:
+- Lots...
+- Set up symmetric keys between clients for speed.
+- Use better RSA lib. Possibly ElGamal instead.
+- Paralelization needs to be optimized
+- GUI
+- This is just a proof of concept wirtten in python. Needs to be ported to JS and still have random numbers.
