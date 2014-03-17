@@ -136,6 +136,7 @@ def user(name, p, msgs, ned):
             index = words.find(" ")
             target,msg = words[:index],words[index+1:]
             
+            #first arg is the length of the circuit to generate 2 is risky causes crashes sometimes. 1 seems to be safe
             circuit = generateCircuit(2, target, "msg"+name+": "+msg, keys, online, svrkeys)
             if circuit == None:
                 print "Do not have that user's key, try :ks"
