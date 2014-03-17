@@ -1,3 +1,4 @@
+import ast
 import signal
 import cPickle as pickle
 import rsa
@@ -108,10 +109,7 @@ def main(data):
         print('Saving data')
         with lock:
             with open('serverdata.pkl', 'wb') as f:
-                temp = {}
-                print "%s" % ID_KEY
-                for key in iter(ID_KEY.keys()):
-                    print key
+                temp = ast.literal_eval(str(ID_KEY))
                 pickle.dump( temp, f ) #save keys on edit
         sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
@@ -140,8 +138,8 @@ if __name__ == "__main__":
     try:
         with open('serverdata.pkl', 'rb') as f:
             data = pickle.load(f)
-            main(data)
     except:
         print "Data not found"
-        main({})
-        
+        data = {}
+
+    main(data)
