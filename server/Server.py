@@ -1,3 +1,6 @@
+import ast
+import signal
+import cPickle as pickle
 import rsa
 from multiprocessing import Process, Manager
 import socket
@@ -31,7 +34,7 @@ def process_client(c, ID_KEY, ID_STATUS, ID_SOCK, ned):
             print c_id + " sent a new public key " + v
         elif v.startswith(":ls"):
             print "list requested, sending: %s" % ID_STATUS
-            c.send("%s" % filter(lambda x: ID_STATUS.get(x, False)  == True,ID_STATUS.keys()))
+            c.send("%sEND" % filter(lambda x: ID_STATUS.get(x, False)  == True,ID_STATUS.keys()))
         elif v.startswith(":ks"):
             print "keys requested, sending: %s" % ID_KEY
             c.send("%sEND" % ID_KEY)
@@ -76,8 +79,10 @@ def process_data(c, ID_SOCK, ned):
     d += block
     d = d[:d.find("END")]
 
+    print "Process '%s'" % d
+    
     #reformat to integer list
-    d = map(int, d.split(":"))
+    d = pickle.loads(str(d))
     d = rsa.decrypt(d, ned[0], ned[2], 15)
     d = d.split("||")
     
@@ -86,22 +91,37 @@ def process_data(c, ID_SOCK, ned):
     ID_SOCK[name] = d[1] 
     c.close()
 
-def main():
+def main(data):
+    """
+    Launches the server with given set of keys (data)
+    """
     ned = rsa.newKey(10**100,10**101,50)
     print "Keys\nn = %s\ne = %s\nd = %s\n" % (ned[0],ned[1],ned[2])
 
     manager = Manager()
     ID_KEY = manager.dict()
+    ID_KEY.update(data) #get saved data
     ID_STATUS = manager.dict()
     ID_SOCK = manager.dict()
 
+    #define an interupt catcher to save data (doesnt work)
+    def signal_handler(signal, frame):
+        print('Saving data')
+        with lock:
+            with open('serverdata.pkl', 'wb') as f:
+                temp = ast.literal_eval(str(ID_KEY))
+                pickle.dump( temp, f ) #save keys on edit
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+
     s = socket.socket()
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
     hostname = socket.gethostname()
     port = 8000
-    s.bind((hostname,port))
+    s.bind(('',port))
     s.listen(5)
     
+    #listen for incoming connections and start a thread based on what kind it is
     while True:
         c, addr =  s.accept()
         c.send("init")
@@ -115,4 +135,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        with open('serverdata.pkl', 'rb') as f:
+            data = pickle.load(f)
+    except:
+        print "Data not found"
+        data = {}
+
+    main(data)

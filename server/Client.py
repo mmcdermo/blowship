@@ -1,9 +1,11 @@
+import cPickle as pickle
 import rsa
 from multiprocessing import Process, Manager
 import socket
 import threading
 import sys
 import ast
+import random
 
 lock = threading.RLock()
 host = socket.gethostname()
@@ -31,11 +33,13 @@ def encrypt(message, n, e, userId, svrkey):
 
     #encrypt and prepend the username
     msg = rsa.encrypt(pad(message) + message, n, e, 15)
-    msg = userId + "||" + ":".join(map(str,msg))
+    msg = userId + "||" + pickle.dumps(msg,2)
+
 
     #encrypt for server second, no name required since every other decryption goes through server anyway
     msg = rsa.encrypt(pad(msg) + msg, svrkey[1], svrkey[0], 15)
-    msg = ":".join(map(str,msg))
+    msg = pickle.dumps(msg,2)
+
     return msg
     
 def sendData(data):
@@ -47,12 +51,20 @@ def sendData(data):
         tsock.send("data"+data+"END")
     tsock.close()
 
-def generateCircuit(n, enduser, message, keys, svrkeys):
+def generateCircuit(n, enduser, message, keys, online, svrkeys):
     if enduser not in keys.keys():
         return None
 
     #first encrypt for the intended recipient
     ct = encrypt(message, keys[enduser][1], keys[enduser][0], enduser, svrkeys)
+
+    length = 1
+    while length < n:
+        user = random.choice(online)
+        pair = keys[user]
+        ct = encrypt(ct, pair[1], pair[0], user, svrkeys)
+        length += 1
+
     return ct
 
 
@@ -65,6 +77,7 @@ def user(name, p, msgs, ned):
     the origin of a message
     """
     keys = {}
+    online = []
     s = socket.socket()
     port = 8000
     s.connect((host,port))
@@ -102,13 +115,14 @@ def user(name, p, msgs, ned):
 
         if words == ":ls":
             s.send(words)
-            print "Server: " + s.recv(1024)
+            online = ast.literal_eval(readFromSocketUntil(s))
+            print "Online users: %s" % online
         if words.startswith(":send"):
             words = words[6:]
             index = words.find(" ")
             target,msg = words[:index],words[index+1:]
             
-            circuit = generateCircuit(5, target, "msg"+name+": "+msg, keys, svrkeys)
+            circuit = generateCircuit(2, target, "msg"+name+": "+msg, keys, online, svrkeys)
             if circuit == None:
                 print "Do not have that user's key, try :ks"
             else:
@@ -133,7 +147,8 @@ def decrypt(data,ned):
     """
     decrypt if you know what I mean wink wink nudge nudge
     """
-    data = map(int,data.split(":"))
+    data = pickle.loads(str(data))
+#    data = map(int,data.split(":"))
     return rsa.decrypt(data, ned[0], ned[2], 15)
 
 
@@ -180,7 +195,7 @@ if __name__ == "__main__":
             ned = tuple(map(int,f.read().split("\n")[0:-1]))
             
     except IOError:
-        ned = (0,0,0)
+        ned = (1,1,1)
         print "No keys found, consider making some with :genkey"
 
     p = Process(target=circuit,args=(name,msgs,ned))
