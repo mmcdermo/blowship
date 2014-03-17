@@ -1,4 +1,4 @@
-import pickle
+import cPickle as pickle
 import rsa
 from multiprocessing import Process, Manager
 import socket

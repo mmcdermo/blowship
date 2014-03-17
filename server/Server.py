@@ -1,4 +1,5 @@
-import pickle
+import signal
+import cPickle as pickle
 import rsa
 from multiprocessing import Process, Manager
 import socket
@@ -89,14 +90,31 @@ def process_data(c, ID_SOCK, ned):
     ID_SOCK[name] = d[1] 
     c.close()
 
-def main():
+def main(data):
+    """
+    Launches the server with given set of keys (data)
+    """
     ned = rsa.newKey(10**100,10**101,50)
     print "Keys\nn = %s\ne = %s\nd = %s\n" % (ned[0],ned[1],ned[2])
 
     manager = Manager()
     ID_KEY = manager.dict()
+    ID_KEY.update(data) #get saved data
     ID_STATUS = manager.dict()
     ID_SOCK = manager.dict()
+
+    #define an interupt catcher to save data (doesnt work)
+    def signal_handler(signal, frame):
+        print('Saving data')
+        with lock:
+            with open('serverdata.pkl', 'wb') as f:
+                temp = {}
+                print "%s" % ID_KEY
+                for key in iter(ID_KEY.keys()):
+                    print key
+                pickle.dump( temp, f ) #save keys on edit
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
 
     s = socket.socket()
 
@@ -105,6 +123,7 @@ def main():
     s.bind(('',port))
     s.listen(5)
     
+    #listen for incoming connections and start a thread based on what kind it is
     while True:
         c, addr =  s.accept()
         c.send("init")
@@ -118,4 +137,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        with open('serverdata.pkl', 'rb') as f:
+            data = pickle.load(f)
+            main(data)
+    except:
+        print "Data not found"
+        main({})
+        
