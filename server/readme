@@ -1,7 +1,7 @@
 Readme for proof of concept of Blowship implementation
 Authors:
-- John Carlyle
-- Morgan McDermott
+- John Carlyle     [jcarlyle@ucsc.edu]
+- Morgan McDermott [moamcder@ucsc.edu]
 
 Files:
 - Server.py:
@@ -16,6 +16,11 @@ Files:
        :ks     - Get list of keys of users on the server (need this to send messages)
        :ls     - Get list of users who are currently connected to the server (need this to send messages)
        :send name message here of arbitrary length - Sends a message to 'name' through the network. Currently very buggy because of our RSA library.
+
+Security Considerations:
+- This is a proof of concept and does not implement all security methods outlined in the paper.
+- Specifically, the route length is hardcoded, peers do not send cover traffic, and do not wait to receive two messages before forwarding them onwards. Peers do not audit their public keys.
+- This system uses the trivial implementation of PIR in which the entire database is sent to each peer. This is provably secure, but not practical for any reasonable scale. 
 
 Instructions:
 - Launch a server and two clients with different names
